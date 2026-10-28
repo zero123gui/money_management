@@ -36,6 +36,7 @@ financeiro/
 
 - [`docs/DECISOES.md`](docs/DECISOES.md): decisões de arquitetura e convenções.
 - [`docs/REQUISITOS.md`](docs/REQUISITOS.md): requisitos funcionais e não funcionais.
+- [`docs/API.md`](docs/API.md): contrato da API REST (convenções e endpoints).
 - [`docs/PROGRESSO.md`](docs/PROGRESSO.md): o que foi feito e próximos passos.
 - [`AGENTS.md`](AGENTS.md): guia para agentes de IA que trabalham no projeto.
 

@@ -25,16 +25,19 @@
   - [x] Decidido PostgreSQL desde o início (substitui "SQLite para começar") e API e banco na nuvem.
   - [x] Modelo de dados do MVP fechado em `DECISOES.md`: `usuario`, `categoria` (nova tabela), `lancamento` com `tipo` e exclusão lógica.
   - [x] Branch `docs/setup-e-requisitos` publicada no GitHub e PR aberto pelo usuário.
+  - [x] Decidido: desenvolver e testar localmente antes da nuvem, PostgreSQL instalado no Windows, JWT de 1 hora e JavaFX 21 (LTS).
+  - [x] `docs/API.md` criado com as convenções REST e os 17 endpoints do MVP.
+  - [x] Aprovado: URLs e campos JSON da API em português.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Validar os requisitos que ainda estão como "Proposto" em `docs/REQUISITOS.md`.
-2. [ ] Decidir como rodar o PostgreSQL no computador de desenvolvimento (instalação direta no Windows ou Docker).
+1. [ ] Revisar e aprovar o restante de `docs/API.md` (endpoints, validações, códigos de status).
+2. [ ] Validar os requisitos que ainda estão como "Proposto" em `docs/REQUISITOS.md`.
 3. [ ] Decidir a ferramenta de migração do banco (sugestão: Flyway, que versiona a criação das tabelas em arquivos SQL).
-4. [ ] Desenhar os endpoints da API do MVP (rotas, entradas e saídas) antes de escrever código.
-5. [ ] Definir o tempo de expiração do token JWT.
+4. [ ] Definir a lista de categorias padrão (RF-14).
+5. [ ] Iniciar o código: `pom.xml` agregador e projeto Spring Boot do backend.
 
 ## Backlog (depois)
 
@@ -43,8 +46,8 @@ Ordem sugerida:
 - [ ] Backend: autenticação JWT e service centralizado de autorização.
 - [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria.
 - [ ] Criar `.env.example` / `application-example.properties` quando surgir a primeira configuração.
-- [ ] Desktop: definir a versão do JavaFX e criar o cliente.
-- [ ] Escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
+- [ ] Desktop: criar o cliente JavaFX 21.
+- [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`.
 - [ ] Revisão de segurança antes de qualquer deploy.
 - [ ] Pós-MVP: forma de pagamento, recorrência, parcelas, exportação CSV, limite por categoria.
@@ -53,5 +56,4 @@ Ordem sugerida:
 
 ## Pendências e dúvidas em aberto
 
-- Provedor de nuvem para a API e o banco.
-- Versão do JavaFX.
+- Provedor de nuvem para a API e o banco (decidir depois do MVP local).

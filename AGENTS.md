@@ -7,6 +7,7 @@ Aplicação de **controle financeiro familiar**: backend Spring Boot (API REST +
 1. `docs/DECISOES.md`: decisões de arquitetura e convenções. É a fonte da verdade.
 2. `docs/PROGRESSO.md`: o que já foi feito e o que fazer na próxima sessão.
 3. `docs/REQUISITOS.md`: requisitos funcionais e não funcionais, e os dados que derivam deles.
+4. `docs/API.md`: contrato da API REST. Todo endpoint novo ou alterado deve ser refletido nele no mesmo commit.
 
 Se a tarefa conflitar com uma decisão registrada, **pare e pergunte** ao usuário. Não mude a decisão por conta própria.
 
@@ -23,7 +24,7 @@ Se a tarefa conflitar com uma decisão registrada, **pare e pergunte** ao usuár
 
 Detalhes e motivos em `docs/DECISOES.md`, seção "Convenções do projeto".
 
-- **Idioma**: documentação, commits e comentários em português; identificadores de código em inglês.
+- **Idioma**: documentação, commits e comentários em português; identificadores de código em inglês. Exceções: banco de dados, URLs e campos JSON da API ficam em português sem acento (ex.: `/lancamentos`, `categoriaId`), e os DTOs seguem os nomes do JSON.
 - **Commits** (Conventional Commits): `tipo(escopo): descrição no imperativo`. Tipos: `feat fix docs style refactor test chore build ci perf`. Escopos: `backend desktop docs repo`.
 - **Branches**: `feature/…`, `fix/…`, `docs/…`, `refactor/…`, `chore/…`, em kebab-case.
 - **Comentários**: Javadoc em classes e métodos públicos; comentário inline explica o *porquê*; sem código comentado.
@@ -44,4 +45,4 @@ Experiente em Java, pouco familiar com Python, Electron e Tauri. Prefira soluç�
 
 ## Estado atual
 
-Projeto em fase de levantamento de requisitos. As pastas `backend/` e `desktop/` existem, mas ainda não há código nem projeto Maven. Veja `docs/PROGRESSO.md`.
+Projeto em fase de planejamento: requisitos e modelo de dados fechados, contrato da API em aprovação. As pastas `backend/` e `desktop/` existem, mas ainda não há código nem projeto Maven. Veja `docs/PROGRESSO.md`.

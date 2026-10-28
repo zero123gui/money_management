@@ -35,7 +35,7 @@ Decidido em 2026-10-28.
   - é o padrão mais comum em tutoriais de Spring Boot e JavaFX, e tem plugin oficial para JavaFX (`javafx-maven-plugin`);
   - suporta projeto multimódulo, que é o formato do monorepo (ver abaixo).
   O Gradle compila mais rápido em projetos grandes, mas essa vantagem não pesa num projeto deste tamanho.
-- **JavaFX**: versão a definir quando o projeto desktop for criado.
+- **JavaFX 21 (LTS)**, decidido em 2026-10-28. A versão exata de patch é fixada no `pom.xml` quando o projeto for criado. Motivo: o usuário pediu a versão mais estável. A 21 é LTS, e as versões mais novas do JavaFX exigem um JDK mais novo que o Java 21 do projeto.
 
 ## Estrutura do repositório
 
@@ -52,12 +52,32 @@ financeiro/
 - **Por que não um projeto único?** MVC é um padrão de organização *dentro* de uma aplicação, não uma forma de juntar as duas. O backend já segue camadas (controller, service, repository) e o desktop segue MVC com FXML. Juntar tudo num só programa faria o desktop acessar o banco direto: a senha do banco ficaria em cada computador e o isolamento de dados por usuário deixaria de ser garantido pelo servidor, contrariando o "Modelo de acesso".
 - Um módulo compartilhado (`common/`, por exemplo para DTOs) **não** será criado por enquanto. Motivo: o desktop conversa com a API por JSON; compartilhar classes acopla as duas versões. Reavaliar se houver duplicação real.
 
+## Ambiente de desenvolvimento
+
+Decidido em 2026-10-28.
+
+- **Desenvolver, buildar e testar tudo localmente antes de ir para a nuvem.** Motivo: erros são mais fáceis de achar e corrigir na própria máquina, sem custo e sem expor uma API incompleta na internet. A nuvem entra quando o MVP funcionar localmente.
+- **PostgreSQL instalado direto no Windows** do desenvolvedor, que já está instalado. Motivo: já está disponível; o Docker seria mais uma ferramenta para aprender sem ganho real para um único desenvolvedor. Reavaliar se surgir a necessidade de recriar o banco do zero com frequência ou de rodar o mesmo ambiente em outra máquina.
+- O banco local usa **dados fictícios**. Dados financeiros reais da família só existem no banco da nuvem e nunca são copiados para a máquina de desenvolvimento.
+- A **estrutura** do banco (tabelas, colunas, restrições) é igual no local e na nuvem. Os **dados** são diferentes.
+
 ## Modelo de acesso
 
 - Cada lançamento pertence a um usuário (`user_id`). Por padrão, só o dono pode ler.
 - O isolamento é feito no backend. Toda consulta filtra pelo usuário autenticado.
 - O cliente não decide o que exibir. A API devolve apenas o que o usuário pode ver.
 - A regra de autorização fica em um service centralizado, para que mudanças futuras fiquem localizadas.
+- O **token JWT expira em 1 hora** (decidido em 2026-10-28). Depois disso, o usuário entra de novo. O valor fica em configuração, não fixo no código, para poder mudar sem recompilar.
+
+## API
+
+Proposta em 2026-10-28. Contrato completo em `docs/API.md`. Idioma aprovado pelo usuário em 2026-10-28; o restante do contrato está em revisão.
+
+- API REST com prefixo de versão `/api/v1`, recursos no plural e ação pelo método HTTP.
+- **URLs e campos JSON em português** (sem acento, camelCase), seguindo os nomes do domínio e do banco (`lancamentos`, `categoriaId`). Motivo: o contrato fica com os mesmos termos dos requisitos e do modelo de dados. **Aprovado** em 2026-10-28 como exceção à regra "identificadores em inglês" (ver "Idioma").
+- Erros no formato RFC 9457 (Problem Details), com mensagens em português.
+- Recurso de outro usuário responde `404`, para não revelar que ele existe.
+- Documentação OpenAPI com `springdoc-openapi`, com o Swagger disponível só no ambiente local.
 
 ## Hospedagem
 
@@ -67,7 +87,7 @@ Decidido em 2026-10-28.
 - O desktop **exige internet**. Motivo: depende de autenticação e dos dados de cada usuário no servidor. Uso offline está fora do escopo.
 - Com a API exposta na internet, **HTTPS é obrigatório**.
 - O banco é **PostgreSQL gerenciado** pelo provedor. Motivo: o SQLite é um arquivo no disco do servidor, e em muitos serviços de nuvem esse disco é apagado a cada novo deploy. O serviço gerenciado evita a perda de dados e já traz backup (RNF-11).
-- **Em aberto:** escolha do provedor de nuvem.
+- **Em aberto:** escolha do provedor de nuvem. Ela fica para depois do MVP rodar localmente (ver "Ambiente de desenvolvimento"), e preços e planos gratuitos devem ser conferidos no momento da escolha.
 
 ## Grupo familiar (futuro)
 
@@ -113,6 +133,7 @@ Propostas em 2026-10-22 (sessão de setup). **Aprovadas pelo usuário em 2026-10
 - Documentação, mensagens de commit e comentários: **português**.
 - Identificadores de código (classes, métodos, variáveis): **inglês**, seguindo o padrão Java.
   Exceção: termos de domínio sem boa tradução podem manter o nome em português (ex.: `lancamento`), desde que consistentes.
+- Banco de dados (tabelas e colunas) e contrato da API (URLs e campos JSON): **português**, sem acento. Os DTOs Java que representam o JSON usam os mesmos nomes dos campos (ex.: `categoriaId`). Decidido em 2026-10-28.
 
 ### Commits: Conventional Commits
 
@@ -153,6 +174,7 @@ Formato: `tipo/descricao-curta-em-kebab-case`
 - `docs/DECISOES.md` (este arquivo): decisões e motivos.
 - `docs/PROGRESSO.md`: o que foi feito e o que fazer na próxima sessão. Atualizado ao fim de cada sessão.
 - `docs/REQUISITOS.md`: requisitos funcionais e não funcionais, e os dados derivados deles.
+- `docs/API.md`: contrato da API REST (convenções e endpoints).
 - `AGENTS.md`: guia para agentes de IA que trabalharem no projeto.
 
 ## Próximos passos

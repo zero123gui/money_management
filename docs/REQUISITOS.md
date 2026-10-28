@@ -76,7 +76,7 @@
 | ID     | Categoria         | Requisito                                                                                                   | Prioridade | Origem   | Status     |
 |--------|-------------------|-------------------------------------------------------------------------------------------------------------|------------|----------|------------|
 | RNF-01 | Segurança         | Senhas guardadas apenas como hash (BCrypt), nunca em texto puro.                                            | Essencial  | Sugestão | Aprovado   |
-| RNF-02 | Segurança         | Autenticação por JWT com prazo de expiração; a chave de assinatura vem de variável de ambiente.             | Essencial  | DECISOES | Proposto   |
+| RNF-02 | Segurança         | Autenticação por JWT com expiração de **1 hora** (configurável); a chave de assinatura vem de variável de ambiente. | Essencial  | DECISOES | Aprovado   |
 | RNF-03 | Segurança         | Comunicação por HTTPS sempre que a API estiver fora da máquina local (obrigatório, pois a API ficará na nuvem). | Essencial  | Sugestão | Aprovado   |
 | RNF-04 | Privacidade       | Toda consulta filtra pelo usuário autenticado, no backend, por meio de um service centralizado.             | Essencial  | DECISOES | Proposto   |
 | RNF-05 | Privacidade       | O grupo familiar só acessa resumos calculados sob demanda; desativar o compartilhamento tem efeito imediato. | Futuro     | DECISOES | Proposto   |
