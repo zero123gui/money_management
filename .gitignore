@@ -1,0 +1,141 @@
+# ==============================================================
+# .gitignore - Controle Financeiro Familiar
+# Regra de ouro: segredos, chaves, tokens e dados reais NUNCA
+# sao versionados. Use arquivos *.example como modelo.
+# ==============================================================
+
+# --------------------------------------------------------------
+# Segredos e credenciais
+# --------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.env
+secrets/
+secret/
+*.secret
+*.secrets
+credentials*.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+.npmrc
+.netrc
+
+# Configuracoes locais do Spring (podem conter senhas e chave JWT)
+application-local.properties
+application-local.yml
+application-local.yaml
+application-dev.properties
+application-dev.yml
+application-dev.yaml
+application-prod.properties
+application-prod.yml
+application-prod.yaml
+**/src/main/resources/application-secret*.*
+
+# --------------------------------------------------------------
+# Banco de dados local e dados financeiros reais
+# --------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+*.mv.db
+*.trace.db
+*.h2.db
+*.dump
+*.bak
+*.sql.gz
+data/
+dados/
+backups/
+exports/
+
+# --------------------------------------------------------------
+# Java / Maven / Gradle
+# --------------------------------------------------------------
+target/
+build/
+out/
+bin/
+.gradle/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+*.class
+*.jar
+*.war
+*.ear
+!gradle/wrapper/gradle-wrapper.jar
+hs_err_pid*
+replay_pid*
+
+# --------------------------------------------------------------
+# JavaFX / empacotamento desktop
+# --------------------------------------------------------------
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm
+dist/
+installers/
+
+# --------------------------------------------------------------
+# Logs e temporarios
+# --------------------------------------------------------------
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# --------------------------------------------------------------
+# IDEs e editores
+# --------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+!.vscode/extensions.json
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+nbproject/
+.nb-gradle/
+
+# --------------------------------------------------------------
+# Sistema operacional
+# --------------------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --------------------------------------------------------------
+# Ferramentas de IA (arquivos locais; AGENTS.md e versionado)
+# --------------------------------------------------------------
+.claude/worktrees/
+.claude/settings.local.json
+CLAUDE.local.md
+.cursor/
+.aider*
