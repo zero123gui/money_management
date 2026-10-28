@@ -135,7 +135,7 @@ Decidido em 2026-10-28 (RF-14). Criadas por migração do Flyway, com `usuario_i
 | Nome         | Tipo      |
 |--------------|-----------|
 | Receitas     | `RECEITA` |
-| Investimentos| *a definir* |
+| Investimentos| `DESPESA` |
 | Moradia      | `DESPESA` |
 | Saúde        | `DESPESA` |
 | Transporte   | `DESPESA` |
@@ -145,7 +145,7 @@ Decidido em 2026-10-28 (RF-14). Criadas por migração do Flyway, com `usuario_i
 
 - Os nomes são dados exibidos ao usuário, por isso mantêm acento.
 - Cada usuário pode criar categorias próprias além dessas (RF-15), por exemplo "Salário" ou "Freelance" como receita.
-- **Em aberto:** o tipo de "Investimentos". Cada categoria tem um único tipo, mas investimento tem os dois sentidos: o dinheiro aplicado sai (despesa) e o rendimento entra (receita).
+- **"Investimentos" é `DESPESA`** (decidido em 2026-10-28): registra o dinheiro aplicado, que sai do saldo. Os rendimentos e resgates entram como receita na categoria "Receitas". Motivo: é como a família já controla hoje.
 
 ## Convenções do projeto
 

@@ -31,19 +31,18 @@
   - [x] Todos os requisitos de `REQUISITOS.md` aprovados pelo usuário.
   - [x] `docs/API.md` aprovado (paginação delegada ao agente).
   - [x] Flyway escolhido para as migrações do banco.
-  - [x] Categorias padrão definidas (falta o tipo de "Investimentos").
+  - [x] Categorias padrão definidas; "Investimentos" é despesa e os rendimentos entram em "Receitas".
   - **Fase de planejamento concluída.** Próxima fase: código do backend.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Definir o tipo da categoria "Investimentos" (ver `DECISOES.md`, "Categorias padrão").
-2. [ ] Fazer o merge do PR de documentação na `main` e criar a branch `feature/backend-estrutura-inicial` a partir dela.
-3. [ ] Criar no PostgreSQL local um banco e um usuário para o projeto. A senha fica fora do Git (variável de ambiente).
-4. [ ] Criar o `pom.xml` agregador na raiz e o projeto Spring Boot em `backend/`.
-5. [ ] Criar a migração `V1` do Flyway: tabelas `usuario`, `categoria`, `lancamento` e categorias padrão.
-6. [ ] Criar o `.env.example` com as variáveis necessárias (banco e chave JWT), sem valores reais.
+1. [ ] Fazer o merge do PR de documentação na `main` e criar a branch `feature/backend-estrutura-inicial` a partir dela.
+2. [ ] Criar no PostgreSQL local um banco e um usuário para o projeto. A senha fica fora do Git (variável de ambiente).
+3. [ ] Criar o `pom.xml` agregador na raiz e o projeto Spring Boot em `backend/`.
+4. [ ] Criar a migração `V1` do Flyway: tabelas `usuario`, `categoria`, `lancamento` e categorias padrão.
+5. [ ] Criar o `.env.example` com as variáveis necessárias (banco e chave JWT), sem valores reais.
 
 ## Backlog (depois)
 
