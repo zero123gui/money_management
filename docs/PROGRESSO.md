@@ -22,12 +22,14 @@
   - [x] `README.md` da raiz reescrito com a descrição e o status do projeto.
   - [x] `docs/REQUISITOS.md` criado: requisitos funcionais e não funcionais, dados derivados e perguntas em aberto.
   - [x] Decidido não criar `.env.example` ou `.properties` por enquanto, porque ainda não há variáveis de ambiente.
+  - [x] Respondidas as perguntas 1, 9 e 10 de `REQUISITOS.md`: o app registra receitas e despesas, o desktop exige internet, e API e banco ficam na nuvem.
+  - [x] Seção "Hospedagem" criada em `DECISOES.md`.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Responder as perguntas em aberto de `docs/REQUISITOS.md`.
+1. [ ] Responder as perguntas que faltam em `docs/REQUISITOS.md`. A principal é a 2 (categoria como tabela); a 11 (PostgreSQL desde o início) também é nova.
 2. [ ] Revisar os requisitos e marcar cada um como Aprovado, Alterado ou Descartado.
 3. [ ] Fechar o modelo de dados (`usuario`, `lancamento`, `categoria`?) e registrá-lo em `DECISOES.md`.
 4. [ ] Definir o escopo da v1 a partir dos requisitos "Essencial".
@@ -44,8 +46,10 @@ Ordem sugerida:
 - [ ] Grupo familiar: tabelas `grupo_familiar` e `grupo_membro`, chave `compartilha_resumo`.
 - [ ] CI (build e testes) e proteção da branch `main`.
 - [ ] Revisão de segurança antes de qualquer deploy.
+- [ ] Escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 
 ## Pendências e dúvidas em aberto
 
-- Ver a seção "Perguntas em aberto" de `docs/REQUISITOS.md` (inclui hospedagem da API e uso offline).
-- Quando migrar de SQLite para PostgreSQL.
+- Ver a seção "Perguntas em aberto" de `docs/REQUISITOS.md`.
+- Provedor de nuvem para a API e o banco.
+- Branch de trabalho ainda não publicada no GitHub (diagnóstico de 2026-10-28: o remoto só tem `main`).

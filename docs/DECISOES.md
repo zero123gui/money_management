@@ -58,6 +58,17 @@ financeiro/
 - O cliente não decide o que exibir. A API devolve apenas o que o usuário pode ver.
 - A regra de autorização fica em um service centralizado, para que mudanças futuras fiquem localizadas.
 
+## Hospedagem
+
+Decidido em 2026-10-28.
+
+- A API e o banco de dados rodarão **na nuvem**, para atender todos os dispositivos da família.
+- O desktop **exige internet**. Motivo: depende de autenticação e dos dados de cada usuário no servidor. Uso offline está fora do escopo.
+- Com a API exposta na internet, **HTTPS é obrigatório**.
+- **Em aberto:**
+  - escolha do provedor de nuvem;
+  - se o banco começa direto em PostgreSQL. O SQLite é um arquivo no disco do servidor, e em muitos serviços de nuvem esse disco é apagado a cada novo deploy. Um PostgreSQL gerenciado evita a perda de dados e já traz backup (RNF-11).
+
 ## Grupo familiar (futuro)
 
 - O grupo vê apenas **resumos por categoria**, nunca lançamentos individuais.
@@ -70,6 +81,8 @@ financeiro/
 
 - `usuario`: id, dados de login, `compartilha_resumo` (booleano).
 - `lancamento`: id, `user_id`, valor, data, categoria, descrição. Sempre privado.
+
+Já decidido (2026-10-28): `lancamento` terá um campo `tipo` (`RECEITA` ou `DESPESA`). Motivo: o app precisa registrar receitas para calcular o balanço geral.
 
 Este modelo é preliminar. Ele será revisado a partir de `docs/REQUISITOS.md`, e a versão final será registrada aqui.
 
