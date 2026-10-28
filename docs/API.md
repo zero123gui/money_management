@@ -1,6 +1,6 @@
 # API REST: Controle Financeiro Familiar
 
-> **Estado: em revisão** (criado em 2026-10-28). Idioma português para URLs e campos JSON **aprovado** em 2026-10-28.
+> **Estado: aprovado** em 2026-10-28. Mudanças posteriores devem ser registradas aqui e em `DECISOES.md`.
 > Este é o contrato entre o `backend` e o `desktop`. Mudanças nele afetam os dois lados.
 > Requisitos citados (RF/RNF) estão em `REQUISITOS.md`; decisões em `DECISOES.md`.
 

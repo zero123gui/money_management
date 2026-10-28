@@ -35,6 +35,10 @@ Decidido em 2026-10-28.
   - é o padrão mais comum em tutoriais de Spring Boot e JavaFX, e tem plugin oficial para JavaFX (`javafx-maven-plugin`);
   - suporta projeto multimódulo, que é o formato do monorepo (ver abaixo).
   O Gradle compila mais rápido em projetos grandes, mas essa vantagem não pesa num projeto deste tamanho.
+- **Flyway** para migrações do banco, decidido em 2026-10-28. Cada mudança de estrutura (criar tabela, adicionar coluna) vira um arquivo SQL numerado em `backend/src/main/resources/db/migration` (ex.: `V1__criar_tabelas_iniciais.sql`). O Flyway aplica os arquivos pendentes ao iniciar a API. Motivo: garante que o banco local e o da nuvem tenham a mesma estrutura, e o histórico do banco fica versionado no Git. Regras:
+  - uma migração já aplicada **nunca é editada**; para corrigir, cria-se uma nova;
+  - o Hibernate não cria nem altera tabelas (`spring.jpa.hibernate.ddl-auto=validate`); só o Flyway faz isso;
+  - as categorias padrão também são inseridas por migração.
 - **JavaFX 21 (LTS)**, decidido em 2026-10-28. A versão exata de patch é fixada no `pom.xml` quando o projeto for criado. Motivo: o usuário pediu a versão mais estável. A 21 é LTS, e as versões mais novas do JavaFX exigem um JDK mais novo que o Java 21 do projeto.
 
 ## Estrutura do repositório
@@ -71,7 +75,7 @@ Decidido em 2026-10-28.
 
 ## API
 
-Proposta em 2026-10-28. Contrato completo em `docs/API.md`. Idioma aprovado pelo usuário em 2026-10-28; o restante do contrato está em revisão.
+Proposta e **aprovada** em 2026-10-28. Contrato completo em `docs/API.md`. O usuário delegou ao agente os detalhes de paginação.
 
 - API REST com prefixo de versão `/api/v1`, recursos no plural e ação pelo método HTTP.
 - **URLs e campos JSON em português** (sem acento, camelCase), seguindo os nomes do domínio e do banco (`lancamentos`, `categoriaId`). Motivo: o contrato fica com os mesmos termos dos requisitos e do modelo de dados. **Aprovado** em 2026-10-28 como exceção à regra "identificadores em inglês" (ver "Idioma").
@@ -123,6 +127,25 @@ Regras e motivos:
 - **Valor sempre positivo.** O `tipo` diz o sentido: receita é entrada, despesa é saída. Saldo = soma das receitas − soma das despesas.
 - **Exclusão lógica de lançamento:** excluir preenche `excluido_em` e não altera o valor. O lançamento some das listas, do saldo e dos resumos, e restaurar volta `excluido_em` para nulo. Toda consulta de lançamentos filtra `excluido_em IS NULL`, além do usuário autenticado.
 - **Fora do MVP:** forma de pagamento (RF-11), recorrência (RF-12), parcelas (RF-13) e exportação CSV (RF-19).
+
+### Categorias padrão
+
+Decidido em 2026-10-28 (RF-14). Criadas por migração do Flyway, com `usuario_id` nulo; valem para todos os usuários e não podem ser alteradas por eles.
+
+| Nome         | Tipo      |
+|--------------|-----------|
+| Receitas     | `RECEITA` |
+| Investimentos| *a definir* |
+| Moradia      | `DESPESA` |
+| Saúde        | `DESPESA` |
+| Transporte   | `DESPESA` |
+| Alimentação  | `DESPESA` |
+| Pessoal      | `DESPESA` |
+| Lazer        | `DESPESA` |
+
+- Os nomes são dados exibidos ao usuário, por isso mantêm acento.
+- Cada usuário pode criar categorias próprias além dessas (RF-15), por exemplo "Salário" ou "Freelance" como receita.
+- **Em aberto:** o tipo de "Investimentos". Cada categoria tem um único tipo, mas investimento tem os dois sentidos: o dinheiro aplicado sai (despesa) e o rendimento entra (receita).
 
 ## Convenções do projeto
 

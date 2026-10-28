@@ -1,6 +1,6 @@
 # Requisitos: Controle Financeiro Familiar
 
-> **Estado: em validação** (criado em 2026-10-28, última revisão em 2026-10-28).
+> **Estado: aprovado pelo usuário** em 2026-10-28. Novos requisitos entram como `Proposto` até serem validados.
 > Este documento é a base para decidir quais dados a aplicação guarda.
 > Quando um requisito for aprovado, alterado ou descartado, atualize a coluna **Status**.
 > O modelo de dados final fica em `DECISOES.md`.
@@ -26,21 +26,21 @@
 
 | ID    | Requisito                                                                   | Prioridade | Origem   | Status   |
 |-------|-----------------------------------------------------------------------------|------------|----------|----------|
-| RF-01 | Cadastrar usuário com nome, e-mail e senha.                                 | Essencial  | Sugestão | Proposto |
+| RF-01 | Cadastrar usuário com nome, e-mail e senha.                                 | Essencial  | Sugestão | Aprovado |
 | RF-02 | Entrar com **e-mail** e senha e receber um token JWT.                       | Essencial  | DECISOES | Aprovado |
-| RF-03 | Sair (logout) no desktop, descartando o token.                              | Essencial  | Sugestão | Proposto |
-| RF-04 | Alterar a própria senha.                                                    | Importante | Sugestão | Proposto |
-| RF-05 | Excluir a própria conta e todos os seus dados.                              | Desejável  | Sugestão | Proposto |
+| RF-03 | Sair (logout) no desktop, descartando o token.                              | Essencial  | Sugestão | Aprovado |
+| RF-04 | Alterar a própria senha.                                                    | Importante | Sugestão | Aprovado |
+| RF-05 | Excluir a própria conta e todos os seus dados.                              | Desejável  | Sugestão | Aprovado |
 
 ### Lançamentos
 
 | ID    | Requisito                                                                   | Prioridade | Origem   | Status   |
 |-------|-----------------------------------------------------------------------------|------------|----------|----------|
-| RF-06 | Registrar lançamento com valor, data, categoria e descrição.                | Essencial  | DECISOES | Proposto |
+| RF-06 | Registrar lançamento com valor, data, categoria e descrição.                | Essencial  | DECISOES | Aprovado |
 | RF-07 | Classificar o lançamento como **receita** (entrada) ou **despesa** (saída). | Essencial  | Sugestão | Aprovado |
-| RF-08 | Editar um lançamento próprio.                                               | Essencial  | Sugestão | Proposto |
+| RF-08 | Editar um lançamento próprio.                                               | Essencial  | Sugestão | Aprovado |
 | RF-09 | Excluir um lançamento próprio por **exclusão lógica**: ele é marcado como excluído, some das listas e deixa de contar no saldo e nos resumos, sem ser apagado do banco. | Essencial  | Sugestão | Alterado |
-| RF-10 | Listar os próprios lançamentos, filtrando por período, categoria e tipo.    | Essencial  | Sugestão | Proposto |
+| RF-10 | Listar os próprios lançamentos, filtrando por período, categoria e tipo.    | Essencial  | Sugestão | Aprovado |
 | RF-11 | Informar a forma de pagamento ou conta (dinheiro, Pix, débito, crédito…).   | Futuro     | Sugestão | Aprovado |
 | RF-12 | Lançamento recorrente (ex.: aluguel todo mês).                              | Futuro     | Sugestão | Aprovado |
 | RF-13 | Lançamento parcelado (ex.: compra em 10x).                                  | Futuro     | Sugestão | Aprovado |
@@ -50,7 +50,7 @@
 
 | ID    | Requisito                                                                   | Prioridade | Origem   | Status   |
 |-------|-----------------------------------------------------------------------------|------------|----------|----------|
-| RF-14 | Oferecer categorias padrão (Alimentação, Moradia, Transporte, Salário…).    | Importante | Sugestão | Aprovado |
+| RF-14 | Oferecer categorias padrão (lista em `DECISOES.md`, "Categorias padrão").   | Importante | Sugestão | Aprovado |
 | RF-15 | Criar, renomear e desativar categorias próprias.                            | Importante | Sugestão | Aprovado |
 
 ### Consultas e relatórios
@@ -58,18 +58,18 @@
 | ID    | Requisito                                                                   | Prioridade | Origem   | Status   |
 |-------|-----------------------------------------------------------------------------|------------|----------|----------|
 | RF-16 | Mostrar o saldo de um período (receitas − despesas), o balanço geral.       | Essencial  | Sugestão | Aprovado |
-| RF-17 | Mostrar o resumo por categoria de um período (total por categoria).         | Essencial  | DECISOES | Proposto |
-| RF-18 | Definir um limite de gasto mensal por categoria e acompanhar o consumo.     | Futuro     | Sugestão | Proposto |
+| RF-17 | Mostrar o resumo por categoria de um período (total por categoria).         | Essencial  | DECISOES | Aprovado |
+| RF-18 | Definir um limite de gasto mensal por categoria e acompanhar o consumo.     | Futuro     | Sugestão | Aprovado |
 | RF-19 | Exportar os próprios lançamentos em CSV.                                    | Futuro     | Sugestão | Alterado |
 
 ### Grupo familiar (futuro)
 
 | ID    | Requisito                                                                   | Prioridade | Origem   | Status   |
 |-------|-----------------------------------------------------------------------------|------------|----------|----------|
-| RF-20 | Ativar ou desativar o compartilhamento de resumo (`compartilha_resumo`).    | Futuro     | DECISOES | Proposto |
-| RF-21 | Criar um grupo familiar e adicionar membros.                                | Futuro     | DECISOES | Proposto |
-| RF-22 | Sair do grupo ou remover um membro.                                         | Futuro     | Sugestão | Proposto |
-| RF-23 | Ver o resumo por categoria dos membros que compartilham (nunca lançamentos).| Futuro     | DECISOES | Proposto |
+| RF-20 | Ativar ou desativar o compartilhamento de resumo (`compartilha_resumo`).    | Futuro     | DECISOES | Aprovado |
+| RF-21 | Criar um grupo familiar e adicionar membros.                                | Futuro     | DECISOES | Aprovado |
+| RF-22 | Sair do grupo ou remover um membro.                                         | Futuro     | Sugestão | Aprovado |
+| RF-23 | Ver o resumo por categoria dos membros que compartilham (nunca lançamentos).| Futuro     | DECISOES | Aprovado |
 
 ## Requisitos não funcionais (RNF)
 
@@ -78,18 +78,18 @@
 | RNF-01 | Segurança         | Senhas guardadas apenas como hash (BCrypt), nunca em texto puro.                                            | Essencial  | Sugestão | Aprovado   |
 | RNF-02 | Segurança         | Autenticação por JWT com expiração de **1 hora** (configurável); a chave de assinatura vem de variável de ambiente. | Essencial  | DECISOES | Aprovado   |
 | RNF-03 | Segurança         | Comunicação por HTTPS sempre que a API estiver fora da máquina local (obrigatório, pois a API ficará na nuvem). | Essencial  | Sugestão | Aprovado   |
-| RNF-04 | Privacidade       | Toda consulta filtra pelo usuário autenticado, no backend, por meio de um service centralizado.             | Essencial  | DECISOES | Proposto   |
-| RNF-05 | Privacidade       | O grupo familiar só acessa resumos calculados sob demanda; desativar o compartilhamento tem efeito imediato. | Futuro     | DECISOES | Proposto   |
-| RNF-06 | Exatidão          | Valores monetários usam `BigDecimal` no Java e `NUMERIC(15,2)` no banco; nunca `float` ou `double`.        | Essencial  | Sugestão | Proposto   |
-| RNF-07 | Localização       | Interface em português; moeda Real (R$); datas `dd/MM/aaaa`; vírgula como separador decimal.                | Essencial  | Sugestão | Proposto   |
+| RNF-04 | Privacidade       | Toda consulta filtra pelo usuário autenticado, no backend, por meio de um service centralizado.             | Essencial  | DECISOES | Aprovado   |
+| RNF-05 | Privacidade       | O grupo familiar só acessa resumos calculados sob demanda; desativar o compartilhamento tem efeito imediato. | Futuro     | DECISOES | Aprovado   |
+| RNF-06 | Exatidão          | Valores monetários usam `BigDecimal` no Java e `NUMERIC(15,2)` no banco; nunca `float` ou `double`.        | Essencial  | Sugestão | Aprovado   |
+| RNF-07 | Localização       | Interface em português; moeda Real (R$); datas `dd/MM/aaaa`; vírgula como separador decimal.                | Essencial  | Sugestão | Aprovado   |
 | RNF-08 | Multi-dispositivo | Os dados ficam no servidor; o desktop exige internet e não guarda dados financeiros localmente. Uso offline está fora do escopo. | Essencial  | Sugestão | Aprovado   |
 | RNF-09 | Persistência      | ~~Trocar SQLite por PostgreSQL sem reescrever código.~~ Sem sentido: o projeto começa direto em PostgreSQL. | -          | Sugestão | Descartado |
-| RNF-10 | Auditoria         | Todo registro guarda data de criação e de última alteração.                                                 | Importante | Sugestão | Proposto   |
-| RNF-11 | Confiabilidade    | Backup periódico do banco de dados (oferecido pelo PostgreSQL gerenciado na nuvem).                         | Importante | Sugestão | Proposto   |
+| RNF-10 | Auditoria         | Todo registro guarda data de criação e de última alteração.                                                 | Importante | Sugestão | Aprovado   |
+| RNF-11 | Confiabilidade    | Backup periódico do banco de dados (oferecido pelo PostgreSQL gerenciado na nuvem).                         | Importante | Sugestão | Aprovado   |
 | RNF-12 | Portabilidade     | O desktop roda no **Windows** no MVP; **macOS** no futuro.                                                  | Essencial  | Sugestão | Alterado   |
-| RNF-13 | Desempenho        | Listagem e resumo de um ano de lançamentos respondem em menos de 2 segundos.                                | Desejável  | Sugestão | Proposto   |
-| RNF-14 | Testabilidade     | Testes automatizados cobrem as regras de autorização e o cálculo de saldo e resumos.                        | Essencial  | Sugestão | Proposto   |
-| RNF-15 | Manutenibilidade  | O código segue as convenções de `DECISOES.md` (Javadoc, commits, branches).                                 | Essencial  | DECISOES | Proposto   |
+| RNF-13 | Desempenho        | Listagem e resumo de um ano de lançamentos respondem em menos de 2 segundos.                                | Desejável  | Sugestão | Aprovado   |
+| RNF-14 | Testabilidade     | Testes automatizados cobrem as regras de autorização e o cálculo de saldo e resumos.                        | Essencial  | Sugestão | Aprovado   |
+| RNF-15 | Manutenibilidade  | O código segue as convenções de `DECISOES.md` (Javadoc, commits, branches).                                 | Essencial  | DECISOES | Aprovado   |
 
 ## Dados derivados
 

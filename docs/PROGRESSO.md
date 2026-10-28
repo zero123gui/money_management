@@ -28,24 +28,28 @@
   - [x] Decidido: desenvolver e testar localmente antes da nuvem, PostgreSQL instalado no Windows, JWT de 1 hora e JavaFX 21 (LTS).
   - [x] `docs/API.md` criado com as convenções REST e os 17 endpoints do MVP.
   - [x] Aprovado: URLs e campos JSON da API em português.
+  - [x] Todos os requisitos de `REQUISITOS.md` aprovados pelo usuário.
+  - [x] `docs/API.md` aprovado (paginação delegada ao agente).
+  - [x] Flyway escolhido para as migrações do banco.
+  - [x] Categorias padrão definidas (falta o tipo de "Investimentos").
+  - **Fase de planejamento concluída.** Próxima fase: código do backend.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Revisar e aprovar o restante de `docs/API.md` (endpoints, validações, códigos de status).
-2. [ ] Validar os requisitos que ainda estão como "Proposto" em `docs/REQUISITOS.md`.
-3. [ ] Decidir a ferramenta de migração do banco (sugestão: Flyway, que versiona a criação das tabelas em arquivos SQL).
-4. [ ] Definir a lista de categorias padrão (RF-14).
-5. [ ] Iniciar o código: `pom.xml` agregador e projeto Spring Boot do backend.
+1. [ ] Definir o tipo da categoria "Investimentos" (ver `DECISOES.md`, "Categorias padrão").
+2. [ ] Fazer o merge do PR de documentação na `main` e criar a branch `feature/backend-estrutura-inicial` a partir dela.
+3. [ ] Criar no PostgreSQL local um banco e um usuário para o projeto. A senha fica fora do Git (variável de ambiente).
+4. [ ] Criar o `pom.xml` agregador na raiz e o projeto Spring Boot em `backend/`.
+5. [ ] Criar a migração `V1` do Flyway: tabelas `usuario`, `categoria`, `lancamento` e categorias padrão.
+6. [ ] Criar o `.env.example` com as variáveis necessárias (banco e chave JWT), sem valores reais.
 
 ## Backlog (depois)
 
-- [ ] Criar o `pom.xml` agregador na raiz (Maven multimódulo).
-- [ ] Backend: projeto Spring Boot, entidades e migrações.
+- [ ] Backend: entidades JPA e repositories.
 - [ ] Backend: autenticação JWT e service centralizado de autorização.
-- [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria.
-- [ ] Criar `.env.example` / `application-example.properties` quando surgir a primeira configuração.
+- [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria, conforme `docs/API.md`.
 - [ ] Desktop: criar o cliente JavaFX 21.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`.
