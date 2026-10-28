@@ -20,36 +20,38 @@
   - [x] Decididos Java 21, Spring Boot 4.x e Maven (motivos em `DECISOES.md`).
   - [x] Estrutura do monorepo criada: `backend/` e `desktop/`, cada uma com `README.md`.
   - [x] `README.md` da raiz reescrito com a descrição e o status do projeto.
-  - [x] `docs/REQUISITOS.md` criado: requisitos funcionais e não funcionais, dados derivados e perguntas em aberto.
-  - [x] Decidido não criar `.env.example` ou `.properties` por enquanto, porque ainda não há variáveis de ambiente.
-  - [x] Respondidas as perguntas 1, 9 e 10 de `REQUISITOS.md`: o app registra receitas e despesas, o desktop exige internet, e API e banco ficam na nuvem.
-  - [x] Seção "Hospedagem" criada em `DECISOES.md`.
+  - [x] `docs/REQUISITOS.md` criado com requisitos funcionais e não funcionais.
+  - [x] Todas as 11 perguntas em aberto respondidas.
+  - [x] Decidido PostgreSQL desde o início (substitui "SQLite para começar") e API e banco na nuvem.
+  - [x] Modelo de dados do MVP fechado em `DECISOES.md`: `usuario`, `categoria` (nova tabela), `lancamento` com `tipo` e exclusão lógica.
+  - [x] Branch `docs/setup-e-requisitos` publicada no GitHub e PR aberto pelo usuário.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Responder as perguntas que faltam em `docs/REQUISITOS.md`. A principal é a 2 (categoria como tabela); a 11 (PostgreSQL desde o início) também é nova.
-2. [ ] Revisar os requisitos e marcar cada um como Aprovado, Alterado ou Descartado.
-3. [ ] Fechar o modelo de dados (`usuario`, `lancamento`, `categoria`?) e registrá-lo em `DECISOES.md`.
-4. [ ] Definir o escopo da v1 a partir dos requisitos "Essencial".
+1. [ ] Validar os requisitos que ainda estão como "Proposto" em `docs/REQUISITOS.md`.
+2. [ ] Decidir como rodar o PostgreSQL no computador de desenvolvimento (instalação direta no Windows ou Docker).
+3. [ ] Decidir a ferramenta de migração do banco (sugestão: Flyway, que versiona a criação das tabelas em arquivos SQL).
+4. [ ] Desenhar os endpoints da API do MVP (rotas, entradas e saídas) antes de escrever código.
+5. [ ] Definir o tempo de expiração do token JWT.
 
 ## Backlog (depois)
 
 - [ ] Criar o `pom.xml` agregador na raiz (Maven multimódulo).
-- [ ] Backend: projeto Spring Boot, entidades, SQLite, migrações.
+- [ ] Backend: projeto Spring Boot, entidades e migrações.
 - [ ] Backend: autenticação JWT e service centralizado de autorização.
-- [ ] Backend: endpoints de lançamentos, saldo e resumo por categoria.
+- [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria.
 - [ ] Criar `.env.example` / `application-example.properties` quando surgir a primeira configuração.
 - [ ] Desktop: definir a versão do JavaFX e criar o cliente.
-- [ ] Migração de SQLite para PostgreSQL.
-- [ ] Grupo familiar: tabelas `grupo_familiar` e `grupo_membro`, chave `compartilha_resumo`.
+- [ ] Escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`.
 - [ ] Revisão de segurança antes de qualquer deploy.
-- [ ] Escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
+- [ ] Pós-MVP: forma de pagamento, recorrência, parcelas, exportação CSV, limite por categoria.
+- [ ] Pós-MVP: versão para macOS.
+- [ ] Futuro: grupo familiar (`grupo_familiar`, `grupo_membro`, `compartilha_resumo`).
 
 ## Pendências e dúvidas em aberto
 
-- Ver a seção "Perguntas em aberto" de `docs/REQUISITOS.md`.
 - Provedor de nuvem para a API e o banco.
-- Branch de trabalho ainda não publicada no GitHub (diagnóstico de 2026-10-28: o remoto só tem `main`).
+- Versão do JavaFX.

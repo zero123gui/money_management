@@ -3,6 +3,7 @@
 Cliente desktop do Controle Financeiro Familiar.
 
 - **Stack**: Java 21, JavaFX (versão a definir), Maven.
+- **Sistemas**: Windows no MVP; macOS no futuro. Exige internet.
 - **Responsabilidade**: interface com o usuário. Consome a API do `backend` e exibe apenas o que ela devolve; não acessa o banco diretamente.
 
 **Status:** ainda não criado. Esta pasta reserva o lugar do módulo no monorepo.

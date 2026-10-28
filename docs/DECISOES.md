@@ -20,8 +20,9 @@ Experiência com Java. Pouca familiaridade com Python, Electron e Tauri.
 
 ## Stack
 
-- **Backend**: Spring Boot, API REST, Spring Security com autenticação JWT, PostgreSQL (SQLite para começar).
-- **Desktop**: JavaFX, consumindo a API.
+- **Backend**: Spring Boot, API REST, Spring Security com autenticação JWT, **PostgreSQL desde o início**.
+  ~~SQLite para começar~~: **Substituída** em 2026-10-28. Motivo: com a API e o banco na nuvem, o arquivo do SQLite pode ser apagado a cada deploy (ver "Hospedagem").
+- **Desktop**: JavaFX, consumindo a API. **Windows** no MVP; **macOS** no futuro (o JavaFX roda nos dois).
 
 ## Versões e build
 
@@ -65,9 +66,8 @@ Decidido em 2026-10-28.
 - A API e o banco de dados rodarão **na nuvem**, para atender todos os dispositivos da família.
 - O desktop **exige internet**. Motivo: depende de autenticação e dos dados de cada usuário no servidor. Uso offline está fora do escopo.
 - Com a API exposta na internet, **HTTPS é obrigatório**.
-- **Em aberto:**
-  - escolha do provedor de nuvem;
-  - se o banco começa direto em PostgreSQL. O SQLite é um arquivo no disco do servidor, e em muitos serviços de nuvem esse disco é apagado a cada novo deploy. Um PostgreSQL gerenciado evita a perda de dados e já traz backup (RNF-11).
+- O banco é **PostgreSQL gerenciado** pelo provedor. Motivo: o SQLite é um arquivo no disco do servidor, e em muitos serviços de nuvem esse disco é apagado a cada novo deploy. O serviço gerenciado evita a perda de dados e já traz backup (RNF-11).
+- **Em aberto:** escolha do provedor de nuvem.
 
 ## Grupo familiar (futuro)
 
@@ -79,12 +79,30 @@ Decidido em 2026-10-28.
 
 ## Modelo de dados inicial
 
+**Substituída** em 2026-10-28 pela seção "Modelo de dados (MVP)" abaixo.
+
 - `usuario`: id, dados de login, `compartilha_resumo` (booleano).
 - `lancamento`: id, `user_id`, valor, data, categoria, descrição. Sempre privado.
 
-Já decidido (2026-10-28): `lancamento` terá um campo `tipo` (`RECEITA` ou `DESPESA`). Motivo: o app precisa registrar receitas para calcular o balanço geral.
+## Modelo de dados (MVP)
 
-Este modelo é preliminar. Ele será revisado a partir de `docs/REQUISITOS.md`, e a versão final será registrada aqui.
+Decidido em 2026-10-28, a partir de `docs/REQUISITOS.md` (lá está de qual requisito vem cada campo).
+
+**`usuario`**: `id`, `nome`, `email` (único; é o login), `senha_hash`, `compartilha_resumo`, `criado_em`, `atualizado_em`.
+
+**`categoria`**: `id`, `nome`, `tipo` (`RECEITA`/`DESPESA`), `usuario_id` (nulo = categoria padrão do sistema), `ativa`.
+
+**`lancamento`**: `id`, `usuario_id`, `tipo` (`RECEITA`/`DESPESA`), `valor` (`NUMERIC(15,2)`), `data`, `categoria_id`, `descricao`, `excluido_em`, `criado_em`, `atualizado_em`. Sempre privado.
+
+Regras e motivos:
+
+- **Login por e-mail**, não por nome de usuário. Motivo: escolha do usuário; o e-mail já é único por natureza.
+- **Senha só como hash BCrypt** em `senha_hash`. Guardar o hash na tabela de usuários é o padrão do Spring Security: o hash não pode ser revertido para a senha, e o login compara o hash da senha digitada com o salvo.
+- **Categoria é uma tabela**, não texto livre. Motivo: evita categorias duplicadas por erro de digitação ("Mercado" × "mercado"), permite renomear sem mexer no histórico, oferecer categorias padrão e deixar o resumo por categoria confiável.
+- **Categoria nunca é apagada se tiver lançamentos**; ela é desativada (`ativa = false`) e some das opções de novos lançamentos.
+- **Valor sempre positivo.** O `tipo` diz o sentido: receita é entrada, despesa é saída. Saldo = soma das receitas − soma das despesas.
+- **Exclusão lógica de lançamento:** excluir preenche `excluido_em` e não altera o valor. O lançamento some das listas, do saldo e dos resumos, e restaurar volta `excluido_em` para nulo. Toda consulta de lançamentos filtra `excluido_em IS NULL`, além do usuário autenticado.
+- **Fora do MVP:** forma de pagamento (RF-11), recorrência (RF-12), parcelas (RF-13) e exportação CSV (RF-19).
 
 ## Convenções do projeto
 
@@ -128,6 +146,7 @@ Formato: `tipo/descricao-curta-em-kebab-case`
 - Configuração sensível vem de variáveis de ambiente ou de arquivos locais ignorados.
 - O repositório traz apenas arquivos modelo (`.env.example`, `application-example.properties`) sem valores reais.
 - Hoje não há nenhuma variável de ambiente, então esses arquivos modelo só serão criados quando a primeira configuração existir (decidido em 2026-10-28).
+- A senha do PostgreSQL e a chave do JWT também seguem essa regra: em produção, ficam nas variáveis de ambiente do provedor de nuvem.
 
 ### Documentação viva
 
@@ -138,8 +157,7 @@ Formato: `tipo/descricao-curta-em-kebab-case`
 
 ## Próximos passos
 
-0. Validar `docs/REQUISITOS.md` e fechar o modelo de dados.
-1. Backend: modelos de usuário e lançamento, autenticação JWT e service de autorização.
+1. Backend: modelos de usuário, categoria e lançamento, autenticação JWT e service de autorização.
 2. Backend: endpoints de resumo por categoria, com a regra de compartilhamento.
 3. Desktop: cliente JavaFX consumindo a API.
 

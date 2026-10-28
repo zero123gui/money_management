@@ -8,7 +8,7 @@ Aplicação desktop para a família registrar e acompanhar receitas e despesas, 
 
 - [x] Decisões de arquitetura e convenções do projeto
 - [x] Estrutura do monorepo (`backend/`, `desktop/`)
-- [ ] Requisitos e modelo de dados (em validação)
+- [x] Requisitos e modelo de dados do MVP
 - [ ] Backend: API, autenticação e lançamentos
 - [ ] Desktop: cliente JavaFX
 
@@ -19,8 +19,8 @@ Detalhes em [`docs/PROGRESSO.md`](docs/PROGRESSO.md).
 | Parte    | Tecnologia                                                        |
 |----------|-------------------------------------------------------------------|
 | Backend  | Java 21, Spring Boot 4.x, Spring Security (JWT), Maven            |
-| Banco    | SQLite no início, PostgreSQL depois                               |
-| Desktop  | Java 21, JavaFX, Maven                                            |
+| Banco    | PostgreSQL (gerenciado na nuvem)                                  |
+| Desktop  | Java 21, JavaFX, Maven (Windows; macOS no futuro)                 |
 
 ## Estrutura
 
