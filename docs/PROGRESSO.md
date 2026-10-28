@@ -2,7 +2,7 @@
 
 > Atualize este arquivo **ao fim de cada sessão**. Decisões e motivos ficam em `DECISOES.md`.
 
-**Última atualização:** 2026-10-22
+**Última atualização:** 2026-10-28
 
 ## Já feito
 
@@ -14,23 +14,32 @@
   - [x] `docs/PROGRESSO.md` criado (este arquivo).
   - [x] Convenções de commits, branches, comentários e segredos registradas em `DECISOES.md`.
   - [x] Escapes quebrados do Markdown corrigidos em `DECISOES.md`.
+- [x] Sessão de planejamento (2026-10-28):
+  - [x] Convenções aprovadas pelo usuário.
+  - [x] Regra "agentes não fazem commit, só staging" registrada em `AGENTS.md` e `DECISOES.md`.
+  - [x] Decididos Java 21, Spring Boot 4.x e Maven (motivos em `DECISOES.md`).
+  - [x] Estrutura do monorepo criada: `backend/` e `desktop/`, cada uma com `README.md`.
+  - [x] `README.md` da raiz reescrito com a descrição e o status do projeto.
+  - [x] `docs/REQUISITOS.md` criado: requisitos funcionais e não funcionais, dados derivados e perguntas em aberto.
+  - [x] Decidido não criar `.env.example` ou `.properties` por enquanto, porque ainda não há variáveis de ambiente.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Revisar e aprovar as convenções propostas em `DECISOES.md` (commits, branches, idioma).
-2. [ ] Decidir versões: Java (ex.: 21 LTS), Spring Boot, ferramenta de build (Maven ou Gradle).
-3. [ ] Criar a estrutura do monorepo: `backend/` e `desktop/` (com `README.md` de cada um).
-4. [ ] Substituir o `README.md` ("Hello") por descrição real do projeto e instruções de execução.
-5. [ ] Criar `.env.example` / `application-example.properties` sem valores reais.
-6. [ ] Backend: projeto Spring Boot, entidades `usuario` e `lancamento`, SQLite.
-7. [ ] Backend: autenticação JWT e service centralizado de autorização.
+1. [ ] Responder as perguntas em aberto de `docs/REQUISITOS.md`.
+2. [ ] Revisar os requisitos e marcar cada um como Aprovado, Alterado ou Descartado.
+3. [ ] Fechar o modelo de dados (`usuario`, `lancamento`, `categoria`?) e registrá-lo em `DECISOES.md`.
+4. [ ] Definir o escopo da v1 a partir dos requisitos "Essencial".
 
 ## Backlog (depois)
 
-- [ ] Backend: endpoints de resumo por categoria com regra de compartilhamento.
-- [ ] Desktop: cliente JavaFX consumindo a API.
+- [ ] Criar o `pom.xml` agregador na raiz (Maven multimódulo).
+- [ ] Backend: projeto Spring Boot, entidades, SQLite, migrações.
+- [ ] Backend: autenticação JWT e service centralizado de autorização.
+- [ ] Backend: endpoints de lançamentos, saldo e resumo por categoria.
+- [ ] Criar `.env.example` / `application-example.properties` quando surgir a primeira configuração.
+- [ ] Desktop: definir a versão do JavaFX e criar o cliente.
 - [ ] Migração de SQLite para PostgreSQL.
 - [ ] Grupo familiar: tabelas `grupo_familiar` e `grupo_membro`, chave `compartilha_resumo`.
 - [ ] CI (build e testes) e proteção da branch `main`.
@@ -38,5 +47,5 @@ Ordem sugerida:
 
 ## Pendências e dúvidas em aberto
 
-- Banco: SQLite só para começar; definir quando migrar para PostgreSQL.
-- Como a API será hospedada para uso em vários dispositivos (ainda não decidido).
+- Ver a seção "Perguntas em aberto" de `docs/REQUISITOS.md` (inclui hospedagem da API e uso offline).
+- Quando migrar de SQLite para PostgreSQL.

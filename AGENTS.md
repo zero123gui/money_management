@@ -6,6 +6,7 @@ Aplicação de **controle financeiro familiar**: backend Spring Boot (API REST +
 
 1. `docs/DECISOES.md`: decisões de arquitetura e convenções. É a fonte da verdade.
 2. `docs/PROGRESSO.md`: o que já foi feito e o que fazer na próxima sessão.
+3. `docs/REQUISITOS.md`: requisitos funcionais e não funcionais, e os dados que derivam deles.
 
 Se a tarefa conflitar com uma decisão registrada, **pare e pergunte** ao usuário. Não mude a decisão por conta própria.
 
@@ -15,6 +16,7 @@ Se a tarefa conflitar com uma decisão registrada, **pare e pergunte** ao usuár
 - **Privacidade**: todo acesso a `lancamento` deve filtrar pelo usuário autenticado, no backend. O cliente nunca decide o que exibir. A autorização fica no service centralizado, sem regras duplicadas em controllers.
 - **Grupo familiar**: só resumos por categoria, nunca lançamentos individuais.
 - **Nada de commits direto na `main`.** Trabalhe em branch e abra Pull Request.
+- **Agentes não fazem commit.** Coloque os arquivos em staging (`git add`) e entregue ao usuário a mensagem de commit sugerida, no padrão do projeto, para ele revisar e commitar. Só faça o commit se o usuário pedir explicitamente naquela mensagem.
 - Não faça `push`, `force push`, nem apague branches sem pedido explícito.
 
 ## Convenções
@@ -34,7 +36,7 @@ Detalhes e motivos em `docs/DECISOES.md`, seção "Convenções do projeto".
 3. Implementar com testes quando houver lógica.
 4. Registrar novas decisões em `docs/DECISOES.md` (data + motivo).
 5. Atualizar `docs/PROGRESSO.md`: marcar o que foi feito e listar a próxima sessão.
-6. Commitar no padrão e resumir o resultado ao usuário, dizendo o que não foi verificado.
+6. Colocar os arquivos em staging, entregar a mensagem de commit sugerida e resumir o resultado ao usuário, dizendo o que não foi verificado.
 
 ## Perfil do usuário
 
@@ -42,4 +44,4 @@ Experiente em Java, pouco familiar com Python, Electron e Tauri. Prefira soluç�
 
 ## Estado atual
 
-Projeto em fase inicial (setup de documentação). Ainda não há código de backend nem desktop. Veja `docs/PROGRESSO.md`.
+Projeto em fase de levantamento de requisitos. As pastas `backend/` e `desktop/` existem, mas ainda não há código nem projeto Maven. Veja `docs/PROGRESSO.md`.
