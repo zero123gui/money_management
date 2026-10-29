@@ -2,7 +2,7 @@
 
 > Atualize este arquivo **ao fim de cada sessão**. Decisões e motivos ficam em `DECISOES.md`.
 
-**Última atualização:** 2026-10-28
+**Última atualização:** 2026-10-29
 
 ## Já feito
 
@@ -33,20 +33,27 @@
   - [x] Flyway escolhido para as migrações do banco.
   - [x] Categorias padrão definidas; "Investimentos" é despesa e os rendimentos entram em "Receitas".
   - **Fase de planejamento concluída.** Próxima fase: código do backend.
+- [x] Sessão de estrutura do backend (2026-10-29):
+  - [x] PR de documentação (#1) mergeado na `main`.
+  - [x] Branch `feature/backend-estrutura-inicial` criada a partir da `main`.
+  - [x] `pom.xml` agregador na raiz e projeto Spring Boot 4.1.2 em `backend/` (pacote `br.com.financeiro.backend`).
+  - [x] Migração `V1__criar_tabelas_iniciais.sql`: tabelas `usuario`, `categoria`, `lancamento` e as 8 categorias padrão.
+  - [x] `backend/.env.example` versionado e `backend/.env` local (fora do Git) lido pelo Spring.
+  - [x] `mvn verify` passa. A API sobe e tenta conectar no PostgreSQL local.
+  - [x] Banco `financeiro` e usuário `financeiro_app` criados pelo usuário; `DB_PASSWORD` preenchido no `.env`.
+  - [x] API executada: o Flyway aplicou a `V1` e as tabelas foram conferidas pelo usuário.
+  - [x] RNF-10 alterado: datas de criação e alteração só em `lancamento` e `usuario`; `categoria` não precisa.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Fazer o merge do PR de documentação na `main` e criar a branch `feature/backend-estrutura-inicial` a partir dela.
-2. [ ] Criar no PostgreSQL local um banco e um usuário para o projeto. A senha fica fora do Git (variável de ambiente).
-3. [ ] Criar o `pom.xml` agregador na raiz e o projeto Spring Boot em `backend/`.
-4. [ ] Criar a migração `V1` do Flyway: tabelas `usuario`, `categoria`, `lancamento` e categorias padrão.
-5. [ ] Criar o `.env.example` com as variáveis necessárias (banco e chave JWT), sem valores reais.
+1. [ ] Abrir o PR de `feature/backend-estrutura-inicial`.
+2. [ ] Backend: entidades JPA e repositories (`Usuario`, `Categoria`, `Lancamento`), validadas pelo `ddl-auto=validate`.
+3. [ ] Definir como os testes de integração acessam o banco (banco de teste no PostgreSQL local ou Testcontainers, que exige Docker).
 
 ## Backlog (depois)
 
-- [ ] Backend: entidades JPA e repositories.
 - [ ] Backend: autenticação JWT e service centralizado de autorização.
 - [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria, conforme `docs/API.md`.
 - [ ] Desktop: criar o cliente JavaFX 21.

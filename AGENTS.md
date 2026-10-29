@@ -45,4 +45,4 @@ Experiente em Java, pouco familiar com Python, Electron e Tauri. Prefira soluç�
 
 ## Estado atual
 
-Planejamento concluído: requisitos, modelo de dados e contrato da API aprovados. Próxima fase: código do backend. As pastas `backend/` e `desktop/` existem, mas ainda não há código nem projeto Maven. Veja `docs/PROGRESSO.md`.
+Planejamento concluído: requisitos, modelo de dados e contrato da API aprovados. O backend tem o projeto Spring Boot (Maven multimódulo a partir da raiz) e a migração `V1` do Flyway, sem entidades nem endpoints. O `desktop/` ainda não tem código. Veja `docs/PROGRESSO.md`.
