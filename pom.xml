@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    POM agregador do monorepo. Só lista os módulos para que um único
+    "mvn install" na raiz compile e teste tudo. Não é pai dos módulos:
+    cada um herda do seu próprio parent (o backend, do Spring Boot).
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>br.com.financeiro</groupId>
+    <artifactId>financeiro</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Controle Financeiro Familiar</name>
+
+    <modules>
+        <module>backend</module>
+    </modules>
+</project>
