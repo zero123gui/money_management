@@ -2,7 +2,7 @@
 
 > Atualize este arquivo **ao fim de cada sessão**. Decisões e motivos ficam em `DECISOES.md`.
 
-**Última atualização:** 2026-10-29
+**Última atualização:** 2026-11-03
 
 ## Já feito
 
@@ -43,19 +43,23 @@
   - [x] Banco `financeiro` e usuário `financeiro_app` criados pelo usuário; `DB_PASSWORD` preenchido no `.env`.
   - [x] API executada: o Flyway aplicou a `V1` e as tabelas foram conferidas pelo usuário.
   - [x] RNF-10 alterado: datas de criação e alteração só em `lancamento` e `usuario`; `categoria` não precisa.
+- [x] Sessão de entidades JPA (2026-11-03):
+  - [x] PR da estrutura inicial (#2) mergeado na `main`.
+  - [x] Decidido usar Testcontainers com Docker nos testes de integração.
+  - [x] Entidades `Usuario`, `Categoria` e `Lancamento`, e o enum `Tipo`, validadas pelo `ddl-auto=validate`.
+  - [x] Repositories só com consultas filtradas por dono, sem `findAll` nem exclusão física de lançamento.
+  - [x] `PersistenceMappingTest` roda contra um PostgreSQL 16 descartável, com as migrações do Flyway.
+  - [x] Branches locais `claude/financial-app-setup-a0e84b` e `claude/pendencias-status-dia-c95625` removidas.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Abrir o PR de `feature/backend-estrutura-inicial`.
-2. [ ] Backend: entidades JPA e repositories (`Usuario`, `Categoria`, `Lancamento`), validadas pelo `ddl-auto=validate`.
-3. [ ] Definir como os testes de integração acessam o banco (banco de teste no PostgreSQL local ou Testcontainers, que exige Docker).
+1. [ ] Backend: autenticação JWT (Spring Security, `POST /auth/cadastro` e `POST /auth/login`) e service centralizado de autorização.
 
 ## Backlog (depois)
 
-- [ ] Backend: autenticação JWT e service centralizado de autorização.
-- [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria, conforme `docs/API.md`.
+- [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria, conforme `docs/API.md`. Os filtros de `GET /lancamentos` e as somas dos relatórios ainda não existem em `LancamentoRepository`.
 - [ ] Desktop: criar o cliente JavaFX 21.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`.

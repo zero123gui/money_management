@@ -81,7 +81,9 @@ Decidido em 2026-10-29, na criação do projeto.
 Decidido em 2026-10-28.
 
 - **Desenvolver, buildar e testar tudo localmente antes de ir para a nuvem.** Motivo: erros são mais fáceis de achar e corrigir na própria máquina, sem custo e sem expor uma API incompleta na internet. A nuvem entra quando o MVP funcionar localmente.
-- **PostgreSQL instalado direto no Windows** do desenvolvedor, que já está instalado. Motivo: já está disponível; o Docker seria mais uma ferramenta para aprender sem ganho real para um único desenvolvedor. Reavaliar se surgir a necessidade de recriar o banco do zero com frequência ou de rodar o mesmo ambiente em outra máquina.
+- **PostgreSQL instalado direto no Windows** do desenvolvedor, que já está instalado. Motivo: já está disponível.
+  ~~O Docker seria mais uma ferramenta para aprender sem ganho real para um único desenvolvedor. Reavaliar se surgir a necessidade de recriar o banco do zero com frequência ou de rodar o mesmo ambiente em outra máquina.~~ **Substituída** em 2026-11-03 pelo item abaixo.
+- **Testes de integração com Testcontainers e Docker**, decidido em 2026-11-03. Cada execução sobe um PostgreSQL 16 descartável (`postgres:16-alpine`), aplica as migrações do Flyway e descarta o contêiner no fim. O Docker Desktop precisa estar aberto para rodar `mvn verify`.
 - O banco local usa **dados fictícios**. Dados financeiros reais da família só existem no banco da nuvem e nunca são copiados para a máquina de desenvolvimento.
 - A **estrutura** do banco (tabelas, colunas, restrições) é igual no local e na nuvem. Os **dados** são diferentes.
 
@@ -91,6 +93,7 @@ Decidido em 2026-10-28.
 - O isolamento é feito no backend. Toda consulta filtra pelo usuário autenticado.
 - O cliente não decide o que exibir. A API devolve apenas o que o usuário pode ver.
 - A regra de autorização fica em um service centralizado, para que mudanças futuras fiquem localizadas.
+- **Repositories só expõem consultas filtradas por dono**, decidido em 2026-11-03: estendem `Repository`, não `JpaRepository`. Motivo: `JpaRepository` traz `findAll` e `findById` sem filtro, e um uso distraído vazaria dados de outro usuário. Sem esses métodos, o erro nem compila. `LancamentoRepository` também não tem método de exclusão física, pois a exclusão de lançamento é lógica.
 - O **token JWT expira em 1 hora** (decidido em 2026-10-28). Depois disso, o usuário entra de novo. O valor fica em configuração, não fixo no código, para poder mudar sem recompilar.
 
 ## API
@@ -177,6 +180,7 @@ Propostas em 2026-10-22 (sessão de setup). **Aprovadas pelo usuário em 2026-10
 - Documentação, mensagens de commit e comentários: **português**.
 - Identificadores de código (classes, métodos, variáveis): **inglês**, seguindo o padrão Java.
   Exceção: termos de domínio sem boa tradução podem manter o nome em português (ex.: `lancamento`), desde que consistentes.
+  - **Entidades JPA**, decidido em 2026-11-03: as classes usam os termos do domínio (`Usuario`, `Categoria`, `Lancamento`, `Tipo`) e os atributos ficam em inglês, ligados às colunas por `@Column` (ex.: `amount` em `valor`). Motivo: aplica a regra acima, pois "valor" e "descricao" têm boa tradução; só os nomes de domínio são exceção.
 - Banco de dados (tabelas e colunas) e contrato da API (URLs e campos JSON): **português**, sem acento. Os DTOs Java que representam o JSON usam os mesmos nomes dos campos (ex.: `categoriaId`). Decidido em 2026-10-28.
 
 ### Commits: Conventional Commits

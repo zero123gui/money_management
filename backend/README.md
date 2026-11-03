@@ -6,7 +6,7 @@ API REST do Controle Financeiro Familiar.
 - **Banco**: PostgreSQL (gerenciado na nuvem em produção).
 - **Responsabilidade**: autenticação, regras de negócio e isolamento dos dados por usuário. Toda consulta filtra pelo usuário autenticado.
 
-**Status:** estrutura inicial criada (projeto Spring Boot e migração `V1`). Ainda sem entidades nem endpoints.
+**Status:** projeto Spring Boot, migração `V1`, entidades JPA e repositories criados. Ainda sem endpoints.
 
 ## Como executar localmente
 
@@ -20,7 +20,7 @@ API REST do Controle Financeiro Familiar.
 
    Na primeira execução, o Flyway cria as tabelas e as categorias padrão.
 
-Para compilar e testar tudo a partir da raiz do repositório: `mvn verify`.
+Para compilar e testar tudo a partir da raiz do repositório: `mvn verify`. Os testes de integração usam Testcontainers, então o Docker Desktop precisa estar aberto; o banco local não é usado.
 
 ## Estrutura
 
