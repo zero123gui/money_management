@@ -50,16 +50,26 @@
   - [x] Repositories só com consultas filtradas por dono, sem `findAll` nem exclusão física de lançamento.
   - [x] `PersistenceMappingTest` roda contra um PostgreSQL 16 descartável, com as migrações do Flyway.
   - [x] Branches locais `claude/financial-app-setup-a0e84b` e `claude/pendencias-status-dia-c95625` removidas.
+- [x] Sessão de autenticação (2026-11-03):
+  - [x] PR das entidades (#3) mergeado na `main`.
+  - [x] Spring Security com JWT: `POST /auth/cadastro`, `POST /auth/login` e `GET /usuarios/me`; as demais rotas exigem token.
+  - [x] `AuthorizationService`: identifica o usuário do token e concentra a regra de alteração de categoria.
+  - [x] Erros no formato RFC 9457, em português, inclusive os dos filtros de segurança.
+  - [x] Limite de 72 bytes na senha registrado em `docs/API.md` e `DECISOES.md`.
+  - [x] `AuthApiTest` (HTTP real e PostgreSQL descartável) e `AuthorizationServiceTest`.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Backend: autenticação JWT (Spring Security, `POST /auth/cadastro` e `POST /auth/login`) e service centralizado de autorização.
+1. [ ] Backend: `PUT /usuarios/me/senha` (RF-04) e `DELETE /usuarios/me` (RF-05).
+2. [ ] Backend: endpoints de categorias (`docs/API.md`, seção 2.3), usando `AuthorizationService.assertCanEdit`.
 
 ## Backlog (depois)
 
-- [ ] Backend: endpoints de lançamentos, categorias, saldo e resumo por categoria, conforme `docs/API.md`. Os filtros de `GET /lancamentos` e as somas dos relatórios ainda não existem em `LancamentoRepository`.
+- [ ] Backend: endpoints de lançamentos, saldo e resumo por categoria, conforme `docs/API.md`. Os filtros de `GET /lancamentos` e as somas dos relatórios ainda não existem em `LancamentoRepository`.
+- [ ] Backend: documentação OpenAPI com `springdoc-openapi` e Swagger só no ambiente local (`docs/API.md`, seção 1.8).
+- [ ] Backend: limitar tentativas de login, antes de publicar na nuvem.
 - [ ] Desktop: criar o cliente JavaFX 21.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`.
