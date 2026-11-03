@@ -192,7 +192,7 @@ Formato de uma categoria:
 Lista as categorias padrão e as do usuário. Não é paginada.
 
 - Filtros: `tipo` (`RECEITA`/`DESPESA`), `incluirInativas` (padrão `false`).
-- `200` com uma lista, ordenada por nome.
+- `200` com uma lista, ordenada por nome, sem diferenciar maiúsculas nem acentos.
 
 #### `POST /categorias` 🔒
 
@@ -200,8 +200,9 @@ Lista as categorias padrão e as do usuário. Não é paginada.
 { "nome": "Mercado", "tipo": "DESPESA" }
 ```
 
-- `201`.
-- `409` se o usuário já tiver uma categoria com o mesmo nome e tipo (sem diferenciar maiúsculas de minúsculas).
+- Validações: `nome` e `tipo` obrigatórios; `nome` com até 50 caracteres. Espaços no início e no fim do nome são removidos.
+- `201` com a categoria e o cabeçalho `Location: /api/v1/categorias/7`. Essa URL aceita `PUT`; não existe `GET` de uma categoria só.
+- `409` se o usuário já tiver uma categoria com o mesmo nome e tipo (sem diferenciar maiúsculas de minúsculas), mesmo desativada. Repetir o nome de uma categoria padrão é permitido.
 
 #### `PUT /categorias/{id}` 🔒
 
@@ -211,9 +212,10 @@ Renomeia, desativa ou reativa uma categoria própria.
 { "nome": "Supermercado", "ativa": false }
 ```
 
-- O `tipo` não pode mudar depois de criado. Mudar o tipo deixaria lançamentos antigos incoerentes.
+- `nome` e `ativa` obrigatórios, com as mesmas regras de nome do `POST`.
+- O `tipo` não pode mudar depois de criado. Mudar o tipo deixaria lançamentos antigos incoerentes. Um `tipo` enviado no corpo é ignorado.
 - `200` com a categoria atualizada.
-- `403` se for uma categoria padrão; `404` se for de outro usuário.
+- `403` se for uma categoria padrão; `404` se for de outro usuário; `409` se o novo nome já estiver em outra categoria do usuário com o mesmo tipo.
 - Não existe `DELETE`: categorias são desativadas, nunca apagadas, para preservar o histórico.
 
 ### 2.4 Lançamentos

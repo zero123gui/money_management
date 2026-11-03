@@ -61,16 +61,20 @@
   - [x] PR da autenticação (#4) mergeado na `main`.
   - [x] `PUT /usuarios/me/senha` (RF-04) e `DELETE /usuarios/me` (RF-05).
   - [x] `UsuarioApiTest` e base `ApiTestSupport`, que reaproveita o mesmo contêiner entre as classes de teste.
+- [x] Sessão de categorias (2026-11-03):
+  - [x] PR de senha e conta (#5) mergeado na `main`.
+  - [x] `GET`, `POST` e `PUT /categorias` (RF-14, RF-15), usando `AuthorizationService.assertCanEdit`.
+  - [x] `CategoriaApiTest`, que também cobre a resposta `403` por HTTP.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Backend: endpoints de categorias (`docs/API.md`, seção 2.3), usando `AuthorizationService.assertCanEdit`.
+1. [ ] Backend: endpoints de lançamentos (`docs/API.md`, seção 2.4), com filtros e exclusão lógica.
+2. [ ] Backend: relatórios de saldo e resumo por categoria (`docs/API.md`, seção 2.5).
 
 ## Backlog (depois)
 
-- [ ] Backend: endpoints de lançamentos, saldo e resumo por categoria, conforme `docs/API.md`. Os filtros de `GET /lancamentos` e as somas dos relatórios ainda não existem em `LancamentoRepository`.
 - [ ] Backend: documentação OpenAPI com `springdoc-openapi` e Swagger só no ambiente local (`docs/API.md`, seção 1.8).
 - [ ] Backend: limitar tentativas de login, antes de publicar na nuvem.
 - [ ] Desktop: criar o cliente JavaFX 21.
