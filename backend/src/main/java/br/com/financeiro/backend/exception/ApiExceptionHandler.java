@@ -123,7 +123,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Responde a um corpo que não é um JSON válido para a rota.
+     * Responde a um corpo que não é um JSON válido para a rota, como um valor
+     * de {@code tipo} que não existe.
      *
      * @param exception erro de leitura
      * @param headers   cabeçalhos da resposta
@@ -135,7 +136,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException exception,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Dados inválidos",
-                "O corpo da requisição não é um JSON válido.");
+                "O corpo da requisição é inválido. Confira o JSON e os valores dos campos.");
         return ResponseEntity.badRequest().headers(headers).body(problem);
     }
 

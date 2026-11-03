@@ -33,12 +33,12 @@ public interface CategoriaRepository extends Repository<Categoria, Long> {
     Optional<Categoria> findVisibleById(@Param("id") Long id, @Param("ownerId") Long ownerId);
 
     /**
-     * Lista as categorias padrão e as do usuário, ordenadas por nome.
+     * Lista as categorias padrão e as do usuário, sem ordem definida.
      *
      * @param ownerId identificador do usuário autenticado
      * @return as categorias que o usuário pode ver
      */
-    @Query("select c from Categoria c where c.owner is null or c.owner.id = :ownerId order by c.name")
+    @Query("select c from Categoria c where c.owner is null or c.owner.id = :ownerId")
     List<Categoria> findAllVisible(@Param("ownerId") Long ownerId);
 
     /**
@@ -55,4 +55,30 @@ public interface CategoriaRepository extends Repository<Categoria, Long> {
             where c.owner.id = :ownerId and lower(c.name) = lower(:name) and c.type = :type
             """)
     boolean existsOwned(@Param("ownerId") Long ownerId, @Param("name") String name, @Param("type") Tipo type);
+
+    /**
+     * Verifica se outra categoria própria do usuário já usa esse nome e tipo,
+     * sem diferenciar maiúsculas. Serve para renomear sem conflitar consigo mesma.
+     *
+     * @param ownerId   identificador do usuário autenticado
+     * @param name      nome da categoria
+     * @param type      tipo da categoria
+     * @param excludeId categoria que está sendo alterada
+     * @return {@code true} se já existir
+     */
+    @Query("""
+            select count(c) > 0 from Categoria c
+            where c.owner.id = :ownerId and lower(c.name) = lower(:name) and c.type = :type and c.id <> :excludeId
+            """)
+    boolean existsOwnedExcept(@Param("ownerId") Long ownerId, @Param("name") String name,
+            @Param("type") Tipo type, @Param("excludeId") Long excludeId);
+
+    /**
+     * Grava a alteração no banco na hora, para que uma violação do índice único
+     * apareça aqui e não só no fim da transação.
+     *
+     * @param categoria categoria a gravar
+     * @return a categoria gravada
+     */
+    Categoria saveAndFlush(Categoria categoria);
 }
