@@ -93,6 +93,11 @@ Decidido em 2026-10-28.
 - O isolamento é feito no backend. Toda consulta filtra pelo usuário autenticado.
 - O cliente não decide o que exibir. A API devolve apenas o que o usuário pode ver.
 - A regra de autorização fica em um service centralizado, para que mudanças futuras fiquem localizadas.
+- **JWT com o suporte do próprio Spring Security** (`spring-boot-starter-security-oauth2-resource-server`), decidido em 2026-11-03, em vez de uma biblioteca à parte como a JJWT. Motivo: o Spring já emite e valida o token, sem filtro escrito à mão para conferir assinatura e validade. O nome "OAuth2" vem do padrão de token usado; a API não usa login externo.
+  - Assinatura HS256 com a chave de `JWT_SECRET`, em Base64 e com pelo menos 32 bytes. Motivo: emissor e validador são o mesmo servidor, então uma chave simétrica basta. A API não sobe com uma chave inválida.
+  - O token só carrega o id do usuário, pois o conteúdo de um JWT pode ser lido por quem o tiver.
+  - Sem tolerância de relógio na validade, pois o mesmo servidor emite e valida.
+- **Senha com no máximo 72 bytes**, decidido em 2026-11-03. Motivo: é o limite do BCrypt. O limite é em bytes, não em caracteres, porque letras acentuadas ocupam mais de um byte. O login não aplica esse limite: uma senha maior só resulta em credenciais inválidas.
 - **Repositories só expõem consultas filtradas por dono**, decidido em 2026-11-03: estendem `Repository`, não `JpaRepository`. Motivo: `JpaRepository` traz `findAll` e `findById` sem filtro, e um uso distraído vazaria dados de outro usuário. Sem esses métodos, o erro nem compila. `LancamentoRepository` também não tem método de exclusão física, pois a exclusão de lançamento é lógica.
 - O **token JWT expira em 1 hora** (decidido em 2026-10-28). Depois disso, o usuário entra de novo. O valor fica em configuração, não fixo no código, para poder mudar sem recompilar.
 

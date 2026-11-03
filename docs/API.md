@@ -135,8 +135,8 @@ Cria um usuário. Requisição:
 { "nome": "Ana", "email": "ana@exemplo.com", "senha": "uma-senha-forte" }
 ```
 
-- Validações: todos obrigatórios; `email` em formato válido; `senha` com no mínimo 8 caracteres.
-- `201` com o usuário criado (mesmo formato de `GET /usuarios/me`), sem a senha.
+- Validações: todos obrigatórios; `nome` com até 100 caracteres; `email` em formato válido, com até 254 caracteres; `senha` com no mínimo 8 caracteres e no máximo 72 bytes (limite do BCrypt; letras acentuadas ocupam 2 bytes).
+- `201` com o usuário criado (mesmo formato de `GET /usuarios/me`), sem a senha, e o cabeçalho `Location: /api/v1/usuarios/me`.
 - `409` se o e-mail já estiver cadastrado.
 
 #### `POST /auth/login` 🔓
