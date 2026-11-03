@@ -170,7 +170,8 @@ Cria um usuário. Requisição:
 ```
 
 - `204` em caso de sucesso.
-- `400` se a `senhaAtual` estiver errada ou a `novaSenha` for inválida.
+- `400` se a `senhaAtual` estiver errada ou a `novaSenha` for inválida (mesmas regras da senha no cadastro). A lista `erros` indica o campo.
+- Tokens já emitidos continuam válidos até expirar.
 
 #### `DELETE /usuarios/me` 🔒 (Desejável)
 
