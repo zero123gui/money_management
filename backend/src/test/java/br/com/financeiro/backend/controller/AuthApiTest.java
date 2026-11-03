@@ -6,18 +6,11 @@ import br.com.financeiro.backend.repository.UsuarioRepository;
 import com.jayway.jsonpath.JsonPath;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.Map;
-import java.util.UUID;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -26,38 +19,11 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.client.RestTestClient;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
- * Exercita a autenticação de ponta a ponta: HTTP real, filtros de segurança e
- * PostgreSQL descartável.
+ * Exercita o cadastro, o login e a validação do token.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureRestTestClient
-@Testcontainers
-class AuthApiTest {
-
-    private static final String SENHA = "uma-senha-forte";
-
-    @Container
-    @ServiceConnection
-    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
-
-    /** A chave é sorteada a cada execução; o datasource vem do contêiner. */
-    @DynamicPropertySource
-    static void properties(DynamicPropertyRegistry registry) {
-        registry.add("JWT_SECRET", () -> Base64.getEncoder().encodeToString(randomKey()));
-        registry.add("JWT_EXPIRATION", () -> "PT1H");
-        registry.add("DB_PASSWORD", () -> "nao-usada");
-    }
-
-    @Autowired
-    private RestTestClient client;
+class AuthApiTest extends ApiTestSupport {
 
     @Autowired
     private UsuarioRepository usuarios;
@@ -250,32 +216,6 @@ class AuthApiTest {
                 .expectBody().jsonPath("$.title").isEqualTo("Não autenticado");
     }
 
-    private String register() {
-        String email = uniqueEmail();
-        postRegistration("Ana", email, SENHA).expectStatus().isCreated();
-        return email;
-    }
-
-    private String login(String email) {
-        String body = postLogin(email, SENHA).expectStatus().isOk()
-                .expectBody(String.class).returnResult().getResponseBody();
-        return JsonPath.read(body, "$.token");
-    }
-
-    private RestTestClient.ResponseSpec postRegistration(String nome, String email, String senha) {
-        return client.post().uri("/api/v1/auth/cadastro")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("nome", nome, "email", email, "senha", senha))
-                .exchange();
-    }
-
-    private RestTestClient.ResponseSpec postLogin(String email, String senha) {
-        return client.post().uri("/api/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("email", email, "senha", senha))
-                .exchange();
-    }
-
     private static String sign(JwtEncoder encoder, Long userId, Instant issuedAt, Instant expiresAt) {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(String.valueOf(userId))
@@ -284,15 +224,5 @@ class AuthApiTest {
                 .build();
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
-    }
-
-    private static byte[] randomKey() {
-        byte[] key = new byte[48];
-        new SecureRandom().nextBytes(key);
-        return key;
-    }
-
-    private static String uniqueEmail() {
-        return UUID.randomUUID() + "@exemplo.com";
     }
 }

@@ -49,6 +49,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Responde a um campo recusado por uma regra de negócio.
+     *
+     * @param exception campo recusado
+     * @return a resposta 400
+     */
+    @ExceptionHandler(InvalidFieldException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidField(InvalidFieldException exception) {
+        ProblemDetail problem = invalidFields(List.of(new FieldProblem(exception.getField(), exception.getMessage())));
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    /**
      * Responde a uma requisição sem autenticação válida. A mensagem é a mesma
      * para todos os casos, para não indicar por que o token foi recusado.
      *
@@ -107,10 +119,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(error -> new FieldProblem(error.getField(), error.getDefaultMessage()))
                 .sorted(Comparator.comparing(FieldProblem::campo))
                 .toList();
-        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Dados inválidos",
-                "Um ou mais campos estão inválidos.");
-        problem.setProperty("erros", errors);
-        return ResponseEntity.badRequest().headers(headers).body(problem);
+        return ResponseEntity.badRequest().headers(headers).body(invalidFields(errors));
     }
 
     /**
@@ -153,6 +162,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                     : problem(status, "Erro interno", "Ocorreu um erro inesperado. Tente novamente.");
         };
         return ResponseEntity.status(status).headers(headers).body(problem);
+    }
+
+    private static ProblemDetail invalidFields(List<FieldProblem> errors) {
+        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Dados inválidos",
+                "Um ou mais campos estão inválidos.");
+        problem.setProperty("erros", errors);
+        return problem;
     }
 
     private static ProblemDetail problem(HttpStatusCode status, String title, String detail) {

@@ -57,13 +57,16 @@
   - [x] Erros no formato RFC 9457, em português, inclusive os dos filtros de segurança.
   - [x] Limite de 72 bytes na senha registrado em `docs/API.md` e `DECISOES.md`.
   - [x] `AuthApiTest` (HTTP real e PostgreSQL descartável) e `AuthorizationServiceTest`.
+- [x] Sessão de senha e conta (2026-11-03):
+  - [x] PR da autenticação (#4) mergeado na `main`.
+  - [x] `PUT /usuarios/me/senha` (RF-04) e `DELETE /usuarios/me` (RF-05).
+  - [x] `UsuarioApiTest` e base `ApiTestSupport`, que reaproveita o mesmo contêiner entre as classes de teste.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Backend: `PUT /usuarios/me/senha` (RF-04) e `DELETE /usuarios/me` (RF-05).
-2. [ ] Backend: endpoints de categorias (`docs/API.md`, seção 2.3), usando `AuthorizationService.assertCanEdit`.
+1. [ ] Backend: endpoints de categorias (`docs/API.md`, seção 2.3), usando `AuthorizationService.assertCanEdit`.
 
 ## Backlog (depois)
 
@@ -81,3 +84,4 @@ Ordem sugerida:
 ## Pendências e dúvidas em aberto
 
 - Provedor de nuvem para a API e o banco (decidir depois do MVP local).
+- Trocar a senha não invalida os tokens já emitidos, que valem até expirar (no máximo 1 hora). Decidir se isso é aceitável antes de publicar na nuvem. Invalidar exigiria uma coluna nova em `usuario`.
