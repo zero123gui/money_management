@@ -22,7 +22,7 @@ public class MainController {
     @FXML
     private ToggleGroup menu;
     @FXML
-    private ToggleButton lancamentosItem;
+    private ToggleButton resumoItem;
     @FXML
     private StackPane contentPane;
 
@@ -49,7 +49,7 @@ public class MainController {
                 contentPane.getChildren().setAll(navigator.loadContent((String) selected.getUserData()));
             }
         });
-        lancamentosItem.setSelected(true);
+        resumoItem.setSelected(true);
 
         // Sem o nome o aplicativo continua útil, e a tela aberta já mostra a falha da API.
         tasks.run(api::currentUser, user -> userLabel.setText(user.nome()), failure -> userLabel.setText(""));

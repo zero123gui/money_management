@@ -165,6 +165,9 @@ public class Navigator {
         if (type == MainController.class) {
             return new MainController(api, tasks, this);
         }
+        if (type == ResumoController.class) {
+            return new ResumoController(api, tasks);
+        }
         if (type == LancamentosController.class) {
             return new LancamentosController(api, tasks, this);
         }

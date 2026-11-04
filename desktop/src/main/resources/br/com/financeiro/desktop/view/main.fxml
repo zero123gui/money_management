@@ -26,6 +26,8 @@
     </top>
     <left>
         <VBox styleClass="side-menu" spacing="4" prefWidth="170">
+            <ToggleButton fx:id="resumoItem" text="Resumo" toggleGroup="$menu"
+                          userData="resumo.fxml" maxWidth="Infinity" styleClass="menu-item"/>
             <ToggleButton fx:id="lancamentosItem" text="Lançamentos" toggleGroup="$menu"
                           userData="lancamentos.fxml" maxWidth="Infinity" styleClass="menu-item"/>
         </VBox>

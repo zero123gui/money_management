@@ -96,15 +96,19 @@
   - [x] Criar, editar e excluir lançamentos pelo desktop (RF-06 a RF-09), com confirmação na exclusão.
   - [x] Sessão expirada fecha o formulário aberto e volta para o login.
   - [x] `LancamentoFilterTest` e novos casos em `ApiClientTest`, `FormatsTest` e `ViewsLoadTest`.
+- [x] Sessão do resumo (2026-11-04):
+  - [x] PR do formulário (#12) mergeado na `main`.
+  - [x] Tela de Resumo com saldo e total por categoria do período (RF-16, RF-17), aberta depois do login.
+  - [x] Novos casos em `ApiClientTest`, `FormatsTest` e `ViewsLoadTest`.
+  - **Todos os requisitos funcionais essenciais do MVP estão disponíveis no desktop.**
 
 ## Próxima sessão
 
 Ordem sugerida para o desktop:
 
-1. [ ] Resumo: saldo e totais por categoria, em tabela (RF-16, RF-17).
-2. [ ] Categorias: gestão das categorias próprias (RF-15).
-3. [ ] Excluídos: lista e restauração (RF-24).
-4. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
+1. [ ] Categorias: gestão das categorias próprias (RF-15).
+2. [ ] Excluídos: lista e restauração (RF-24).
+3. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
 
 ## Backlog (depois)
 

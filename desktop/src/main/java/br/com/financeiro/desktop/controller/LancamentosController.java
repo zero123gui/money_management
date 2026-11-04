@@ -24,7 +24,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -36,8 +35,6 @@ import javafx.scene.control.TableView;
 public class LancamentosController {
 
     private static final int PAGE_SIZE = 50;
-    private static final String REVENUE_STYLE = "amount-revenue";
-    private static final String EXPENSE_STYLE = "amount-expense";
 
     private final ApiClient api;
     private final ApiTasks tasks;
@@ -206,7 +203,7 @@ public class LancamentosController {
         bindText(categoryColumn, item -> item.categoria().nome());
         bindText(typeColumn, item -> item.tipo().label());
         amountColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue()));
-        amountColumn.setCellFactory(column -> new AmountCell());
+        amountColumn.setCellFactory(column -> new AmountCell<>(LancamentoResponse::valor, LancamentoResponse::tipo));
     }
 
     private void configureRows() {
@@ -344,21 +341,6 @@ public class LancamentosController {
         @Override
         public String toString() {
             return label;
-        }
-    }
-
-    /** Valor em reais, à direita, na cor do tipo do lançamento. */
-    private static final class AmountCell extends TableCell<LancamentoResponse, LancamentoResponse> {
-        @Override
-        protected void updateItem(LancamentoResponse item, boolean empty) {
-            super.updateItem(item, empty);
-            getStyleClass().removeAll(REVENUE_STYLE, EXPENSE_STYLE);
-            if (empty || item == null) {
-                setText(null);
-            } else {
-                setText(Formats.currency(item.valor()));
-                getStyleClass().add(item.tipo() == Tipo.RECEITA ? REVENUE_STYLE : EXPENSE_STYLE);
-            }
         }
     }
 }

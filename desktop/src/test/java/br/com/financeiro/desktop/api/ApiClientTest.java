@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
+import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
+import br.com.financeiro.desktop.api.dto.SaldoResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
@@ -316,6 +318,62 @@ class ApiClientTest {
         respondWithProblem("/lancamentos", 401, "Token inválido ou expirado.");
 
         assertThatThrownBy(() -> client.createLancamento(ENTRY_REQUEST)).isInstanceOf(SessionExpiredException.class);
+    }
+
+    @Test
+    void readsBalanceOfThePeriodKeepingExactValues() {
+        session.open("meu-token");
+        respondWith("/relatorios/saldo", 200, "application/json", """
+                {"inicio":"2026-10-01","fim":"2026-10-31","totalReceitas":5000.00,
+                 "totalDespesas":6200.50,"saldo":-1200.50}""");
+
+        SaldoResponse balance = client.getSaldo(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31));
+
+        assertThat(receivedQuery.get()).isEqualTo("inicio=2026-10-01&fim=2026-10-31");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+        assertThat(balance.totalReceitas()).isEqualByComparingTo("5000.00");
+        assertThat(balance.totalDespesas()).isEqualByComparingTo("6200.50");
+        assertThat(balance.saldo()).isEqualByComparingTo("-1200.50");
+    }
+
+    @Test
+    void missingPeriodIsLeftForTheApiToReport() {
+        session.open("meu-token");
+        respondWith("/relatorios/saldo", 400, "application/problem+json", """
+                {"title":"Dados inválidos","status":400,"detail":"Um ou mais campos estão inválidos.",
+                 "erros":[{"campo":"inicio","mensagem":"é obrigatório"}]}""");
+
+        ApiException failure = catchThrowableOfType(ApiException.class,
+                () -> client.getSaldo(null, LocalDate.of(2026, 10, 31)));
+
+        assertThat(receivedQuery.get()).isEqualTo("fim=2026-10-31");
+        assertThat(failure.describe(Map.of("inicio", "Início"))).isEqualTo("Início: é obrigatório");
+    }
+
+    @Test
+    void listsTotalsByCategoryInTheOrderOfTheApi() {
+        session.open("meu-token");
+        respondWith("/relatorios/categorias", 200, "application/json", """
+                [{"categoriaId":3,"nome":"Moradia","tipo":"DESPESA","total":1500.00,"quantidade":1},
+                 {"categoriaId":1,"nome":"Receitas","tipo":"RECEITA","total":1200.00,"quantidade":8}]""");
+
+        List<CategoriaTotalResponse> totals =
+                client.listCategoriaTotals(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31));
+
+        assertThat(receivedQuery.get()).isEqualTo("inicio=2026-10-01&fim=2026-10-31");
+        assertThat(totals).extracting(CategoriaTotalResponse::nome).containsExactly("Moradia", "Receitas");
+        assertThat(totals.getFirst().total()).isEqualByComparingTo("1500.00");
+        assertThat(totals.getLast().tipo()).isEqualTo(Tipo.RECEITA);
+        assertThat(totals.getLast().quantidade()).isEqualTo(8);
+    }
+
+    @Test
+    void reportsWithARejectedTokenMeanExpiredSession() {
+        session.open("token-vencido");
+        respondWithProblem("/relatorios/categorias", 401, "Token inválido ou expirado.");
+
+        assertThatThrownBy(() -> client.listCategoriaTotals(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31)))
+                .isInstanceOf(SessionExpiredException.class);
     }
 
     @Test

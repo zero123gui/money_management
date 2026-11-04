@@ -79,10 +79,21 @@ class ViewsLoadTest {
     }
 
     @Test
-    void mainViewLoadsWithTheEntriesScreenOpen() throws Exception {
+    void entriesViewLoads() throws Exception {
+        CompletableFuture<Parent> entries = new CompletableFuture<>();
+        onJavaFxThread(navigator -> {
+            navigator.showLogin();
+            entries.complete(navigator.loadContent("lancamentos.fxml"));
+        });
+
+        assertThat(entries.get(10, TimeUnit.SECONDS).lookup("#newButton")).isNotNull();
+    }
+
+    @Test
+    void mainViewLoadsWithTheSummaryOpen() throws Exception {
         Parent main = onJavaFxThread(Navigator::showMain);
 
         assertThat(main.lookup(".top-bar")).isNotNull();
-        assertThat(main.lookup("#table")).isNotNull();
+        assertThat(main.lookup("#balanceLabel")).isNotNull();
     }
 }
