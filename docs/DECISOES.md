@@ -110,6 +110,8 @@ Proposta e **aprovada** em 2026-10-28. Contrato completo em `docs/API.md`. O usu
 - Erros no formato RFC 9457 (Problem Details), com mensagens em português.
 - Recurso de outro usuário responde `404`, para não revelar que ele existe.
 - Documentação OpenAPI com `springdoc-openapi`, com o Swagger disponível só no ambiente local.
+  - **Desligado por padrão**, decidido em 2026-11-04: só liga com `SWAGGER_ENABLED=true`, definido no `.env` local. Motivo: se a variável faltar em produção, a documentação continua fora do ar. Um perfil do Spring teria o risco inverso, de publicá-la caso o perfil de produção não fosse ativado.
+  - Versão **3.2.0**, a linha do Spring Boot 4, fixada no `pom.xml` em 2026-11-04.
 
 ## Hospedagem
 

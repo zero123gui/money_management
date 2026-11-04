@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import jakarta.servlet.DispatcherType;
 import java.time.Duration;
 import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,20 +35,26 @@ public class SecurityConfig {
      * Define as rotas públicas e a validação do token. A API não guarda sessão
      * nem usa cookies, por isso a proteção contra CSRF não se aplica.
      *
-     * @param http   construtor da configuração do Spring Security
-     * @param errors responde 401 e 403 no formato de erro da API
+     * @param http           construtor da configuração do Spring Security
+     * @param errors         responde 401 e 403 no formato de erro da API
+     * @param apiDocsEnabled se o Swagger está ligado; só então as rotas dele são públicas
      * @return a cadeia de filtros da API
      * @throws Exception se a configuração for inválida
      */
     @Bean
-    public SecurityFilterChain apiSecurity(HttpSecurity http, SecurityErrorHandler errors) throws Exception {
+    public SecurityFilterChain apiSecurity(HttpSecurity http, SecurityErrorHandler errors,
+            @Value("${springdoc.api-docs.enabled}") boolean apiDocsEnabled) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(requests -> requests
-                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/cadastro", "/api/v1/auth/login").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(requests -> {
+                    requests.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
+                    requests.requestMatchers(HttpMethod.POST, "/api/v1/auth/cadastro", "/api/v1/auth/login").permitAll();
+                    if (apiDocsEnabled) {
+                        requests.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
+                    }
+                    requests.anyRequest().authenticated();
+                })
                 .oauth2ResourceServer(server -> server
                         .jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(errors)

@@ -5,6 +5,7 @@ import br.com.financeiro.backend.dto.LoginRequest;
 import br.com.financeiro.backend.dto.TokenResponse;
 import br.com.financeiro.backend.dto.UsuarioResponse;
 import br.com.financeiro.backend.service.AuthService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/v1/auth")
+@SecurityRequirements
 public class AuthController {
 
     private final AuthService authService;

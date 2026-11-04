@@ -42,6 +42,8 @@ abstract class ApiTestSupport {
         registry.add("JWT_SECRET", () -> JWT_SECRET);
         registry.add("JWT_EXPIRATION", () -> "PT1H");
         registry.add("DB_PASSWORD", () -> "nao-usada");
+        // Fixado para o .env de quem roda os testes não mudar o resultado.
+        registry.add("SWAGGER_ENABLED", () -> "false");
     }
 
     @Autowired

@@ -73,14 +73,16 @@
   - [x] `GET /relatorios/saldo` (RF-16) e `GET /relatorios/categorias` (RF-17).
   - [x] `RelatorioApiTest`, que confere os cálculos (RNF-14).
   - **Todos os 17 endpoints do MVP estão implementados no backend.**
+- [x] Sessão de OpenAPI (2026-11-04):
+  - [x] PRs de lançamentos (#7) e relatórios (#8) mergeados na `main`.
+  - [x] `springdoc-openapi` com Swagger desligado por padrão; liga com `SWAGGER_ENABLED=true`.
+  - [x] `SwaggerEnabledTest` confere a especificação contra as 17 rotas do contrato, e `SwaggerDisabledTest` confere o bloqueio padrão.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Fazer o merge de `feature/backend-lancamentos` e depois o de `feature/backend-relatorios`, que foi criada a partir dela.
-2. [ ] Backend: documentação OpenAPI com `springdoc-openapi` e Swagger só no ambiente local (`docs/API.md`, seção 1.8).
-3. [ ] Desktop: criar o cliente JavaFX 21.
+1. [ ] Desktop: criar o cliente JavaFX 21.
 
 ## Backlog (depois)
 

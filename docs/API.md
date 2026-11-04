@@ -97,7 +97,7 @@ Listas que podem crescer muito (lançamentos) são paginadas.
 
 ### 1.8 Documentação automática
 
-A API publica a especificação **OpenAPI** com a biblioteca `springdoc-openapi`. No ambiente local, a interface Swagger fica em `/swagger-ui.html`, onde dá para testar os endpoints pelo navegador. Ela fica **desativada em produção**.
+A API publica a especificação **OpenAPI** com a biblioteca `springdoc-openapi`. No ambiente local, a interface Swagger fica em `/swagger-ui.html`, onde dá para testar os endpoints pelo navegador. Ela só liga com a variável `SWAGGER_ENABLED=true` e fica **desativada em produção**. Desligada, as rotas dela se comportam como qualquer outra: `401` sem token. O contrato oficial continua sendo este documento.
 
 ## 2. Endpoints do MVP
 
