@@ -101,14 +101,17 @@
   - [x] Tela de Resumo com saldo e total por categoria do período (RF-16, RF-17), aberta depois do login.
   - [x] Novos casos em `ApiClientTest`, `FormatsTest` e `ViewsLoadTest`.
   - **Todos os requisitos funcionais essenciais do MVP estão disponíveis no desktop.**
+- [x] Sessão de categorias do desktop (2026-11-04):
+  - [x] PR do resumo (#13) mergeado na `main`.
+  - [x] Tela de Categorias: lista padrão e próprias; cria, renomeia, desativa e reativa as próprias (RF-14, RF-15).
+  - [x] Novos casos em `ApiClientTest` e `ViewsLoadTest`.
 
 ## Próxima sessão
 
 Ordem sugerida para o desktop:
 
-1. [ ] Categorias: gestão das categorias próprias (RF-15).
-2. [ ] Excluídos: lista e restauração (RF-24).
-3. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
+1. [ ] Excluídos: lista e restauração (RF-24).
+2. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
 
 ## Backlog (depois)
 

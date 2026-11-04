@@ -1,10 +1,12 @@
 package br.com.financeiro.desktop.controller;
 
 import br.com.financeiro.desktop.api.ApiClient;
+import br.com.financeiro.desktop.api.dto.CategoriaResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.session.Session;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -78,12 +80,36 @@ public class Navigator {
      * @param onSaved recebe o lançamento depois de salvo, com o formulário já fechado
      */
     public void openEntryForm(LancamentoResponse entry, Consumer<LancamentoResponse> onSaved) {
-        FXMLLoader loader = newLoader("lancamento-form.fxml");
+        this.<LancamentoFormController>openForm("lancamento-form.fxml",
+                entry == null ? "Novo lançamento" : "Editar lançamento",
+                (controller, form) -> controller.open(entry, saved -> {
+                    form.close();
+                    onSaved.accept(saved);
+                }, form::close));
+    }
+
+    /**
+     * Abre o formulário de categoria em uma janela sobre a principal.
+     *
+     * @param category categoria a renomear, ou {@code null} para criar uma nova
+     * @param onSaved  recebe a categoria depois de salva, com o formulário já fechado
+     */
+    public void openCategoryForm(CategoriaResponse category, Consumer<CategoriaResponse> onSaved) {
+        this.<CategoriaFormController>openForm("categoria-form.fxml",
+                category == null ? "Nova categoria" : "Renomear categoria",
+                (controller, form) -> controller.open(category, saved -> {
+                    form.close();
+                    onSaved.accept(saved);
+                }, form::close));
+    }
+
+    private <C> void openForm(String view, String title, BiConsumer<C, Stage> prepare) {
+        FXMLLoader loader = newLoader(view);
         Parent root;
         try {
             root = loader.load();
         } catch (IOException e) {
-            throw new UncheckedIOException("Não foi possível abrir o formulário de lançamento", e);
+            throw new UncheckedIOException("Não foi possível abrir a tela " + view, e);
         }
         Scene scene = new Scene(root);
         scene.getStylesheets().addAll(stage.getScene().getStylesheets());
@@ -91,16 +117,12 @@ public class Navigator {
         Stage form = new Stage();
         form.initOwner(stage);
         form.initModality(Modality.WINDOW_MODAL);
-        form.setTitle(entry == null ? "Novo lançamento" : "Editar lançamento");
+        form.setTitle(title);
         form.setResizable(false);
         form.setScene(scene);
         openForm = form;
 
-        LancamentoFormController controller = loader.getController();
-        controller.open(entry, saved -> {
-            form.close();
-            onSaved.accept(saved);
-        }, form::close);
+        prepare.accept(loader.getController(), form);
         form.show();
     }
 
@@ -167,6 +189,12 @@ public class Navigator {
         }
         if (type == ResumoController.class) {
             return new ResumoController(api, tasks);
+        }
+        if (type == CategoriasController.class) {
+            return new CategoriasController(api, tasks, this);
+        }
+        if (type == CategoriaFormController.class) {
+            return new CategoriaFormController(api, tasks);
         }
         if (type == LancamentosController.class) {
             return new LancamentosController(api, tasks, this);

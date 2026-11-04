@@ -96,6 +96,8 @@ Decidido em 2026-11-04, com a proposta aprovada pelo usuário.
 - **Exclusão com confirmação**, mesmo sendo reversível. Motivo: o lançamento some da lista e do saldo com um clique, e a tela de excluídos fica em outro lugar.
 - **Resumo é a primeira tela depois do login** e abre no mês atual. Os números vêm sempre da API, sem cálculo no cliente (RNF-14). Motivo: é a visão geral do mês, e o cálculo já está testado no backend.
 - **Trocar de tela pelo menu recarrega a tela de destino**, e os filtros voltam ao padrão. Motivo: os números nunca ficam velhos depois de uma alteração em outra tela. Guardar os filtros pode ser avaliado se incomodar.
+- **Desativar ou reativar categoria não pede confirmação**, ao contrário de excluir lançamento. Motivo: nada some da tela nem dos totais, e o mesmo botão desfaz a ação.
+- **Nas categorias padrão, os botões de alteração ficam desligados**, só para evitar uma tentativa inútil. Quem proíbe continua sendo a API, com `403`.
 - **Resumo sem gráfico no MVP**: uma tabela já atende o RF-17.
 - **Testes**: cliente HTTP contra um servidor local falso e carregamento de cada FXML. As telas são conferidas à mão. Motivo: testes automatizados de tela costumam ser frágeis, e as regras importantes já estão testadas no backend.
 

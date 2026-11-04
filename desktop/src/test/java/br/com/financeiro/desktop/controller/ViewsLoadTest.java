@@ -79,6 +79,20 @@ class ViewsLoadTest {
     }
 
     @Test
+    void categoriesViewAndFormLoad() throws Exception {
+        CompletableFuture<Parent> view = new CompletableFuture<>();
+        CompletableFuture<Parent> form = new CompletableFuture<>();
+        onJavaFxThread(navigator -> {
+            navigator.showLogin();
+            view.complete(navigator.loadContent("categorias.fxml"));
+            form.complete(navigator.loadContent("categoria-form.fxml"));
+        });
+
+        assertThat(view.get(10, TimeUnit.SECONDS).lookup("#toggleButton")).isNotNull();
+        assertThat(form.get(10, TimeUnit.SECONDS).lookup("#saveButton")).isNotNull();
+    }
+
+    @Test
     void entriesViewLoads() throws Exception {
         CompletableFuture<Parent> entries = new CompletableFuture<>();
         onJavaFxThread(navigator -> {
