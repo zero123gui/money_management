@@ -1,0 +1,66 @@
+.root {
+    -fx-font-size: 14px;
+    -color-accent: #1f6f5c;
+    -color-accent-dark: #17564a;
+    -color-text-muted: #5b6670;
+    -color-border: #d8dde2;
+}
+
+.page {
+    -fx-background-color: #f3f5f7;
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 8;
+    -fx-padding: 28;
+}
+
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.subtitle {
+    -fx-text-fill: -color-text-muted;
+}
+
+.field-label {
+    -fx-font-weight: bold;
+    -fx-padding: 6 0 0 0;
+}
+
+.form-error {
+    -fx-text-fill: #b3261e;
+    -fx-padding: 6 0 0 0;
+}
+
+.form-notice {
+    -fx-text-fill: -color-accent-dark;
+    -fx-padding: 6 0 0 0;
+}
+
+.primary-button {
+    -fx-background-color: -color-accent;
+    -fx-background-radius: 4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+
+.primary-button:hover {
+    -fx-background-color: -color-accent-dark;
+}
+
+.top-bar {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent -color-border transparent;
+    -fx-padding: 12 20;
+}
+
+.top-bar-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
