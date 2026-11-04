@@ -8,25 +8,30 @@ import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
 import br.com.financeiro.desktop.api.dto.Tipo;
 import br.com.financeiro.desktop.format.Formats;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 
 /**
- * Lista de lançamentos, com filtros e paginação (RF-10). Abre no mês atual.
+ * Lista de lançamentos, com filtros e paginação (RF-10), e as ações de criar,
+ * editar e excluir (RF-06 a RF-09). Abre no mês atual.
  */
 public class LancamentosController {
 
@@ -36,6 +41,7 @@ public class LancamentosController {
 
     private final ApiClient api;
     private final ApiTasks tasks;
+    private final Navigator navigator;
 
     @FXML
     private DatePicker startPicker;
@@ -45,6 +51,8 @@ public class LancamentosController {
     private ComboBox<Option<Tipo>> typeBox;
     @FXML
     private ComboBox<Option<Long>> categoryBox;
+    @FXML
+    private Label noticeLabel;
     @FXML
     private Label errorLabel;
     @FXML
@@ -67,6 +75,10 @@ public class LancamentosController {
     private Button previousButton;
     @FXML
     private Button nextButton;
+    @FXML
+    private Button editButton;
+    @FXML
+    private Button deleteButton;
 
     private List<CategoriaResponse> categories = List.of();
     private LancamentoFilter appliedFilter;
@@ -76,20 +88,24 @@ public class LancamentosController {
     /**
      * Cria o controller.
      *
-     * @param api   cliente da API
-     * @param tasks executor das chamadas
+     * @param api       cliente da API
+     * @param tasks     executor das chamadas
+     * @param navigator abre o formulário
      */
-    public LancamentosController(ApiClient api, ApiTasks tasks) {
+    public LancamentosController(ApiClient api, ApiTasks tasks, Navigator navigator) {
         this.api = api;
         this.tasks = tasks;
+        this.navigator = navigator;
     }
 
     @FXML
     private void initialize() {
         errorLabel.managedProperty().bind(errorLabel.visibleProperty());
+        noticeLabel.managedProperty().bind(noticeLabel.visibleProperty());
         startPicker.setConverter(Formats.dateConverter());
         endPicker.setConverter(Formats.dateConverter());
         configureColumns();
+        configureRows();
         configureFilters();
         selectCurrentMonth();
         applyFilter();
@@ -98,7 +114,8 @@ public class LancamentosController {
 
     @FXML
     private void onFilter() {
-        if (commitTypedDate(startPicker) && commitTypedDate(endPicker)) {
+        noticeLabel.setVisible(false);
+        if (DateFields.commitTyped(startPicker) && DateFields.commitTyped(endPicker)) {
             applyFilter();
         } else {
             errorLabel.setText("Data inválida. Use o formato dd/mm/aaaa.");
@@ -106,22 +123,9 @@ public class LancamentosController {
         }
     }
 
-    /**
-     * O campo só confirma o texto digitado ao perder o foco, e o Enter aciona o
-     * botão Filtrar sem tirar o foco dele. Sem isto, o filtro usaria a data antiga.
-     */
-    private static boolean commitTypedDate(DatePicker picker) {
-        String text = picker.getEditor().getText();
-        LocalDate typed = picker.getConverter().fromString(text);
-        if (typed == null && text != null && !text.isBlank()) {
-            return false;
-        }
-        picker.setValue(typed);
-        return true;
-    }
-
     @FXML
     private void onClearFilters() {
+        noticeLabel.setVisible(false);
         startPicker.setValue(null);
         endPicker.setValue(null);
         typeBox.getSelectionModel().selectFirst();
@@ -131,12 +135,68 @@ public class LancamentosController {
 
     @FXML
     private void onPreviousPage() {
+        noticeLabel.setVisible(false);
         load(currentPage - 1);
     }
 
     @FXML
     private void onNextPage() {
+        noticeLabel.setVisible(false);
         load(currentPage + 1);
+    }
+
+    @FXML
+    private void onNew() {
+        navigator.openEntryForm(null, saved -> onSaved(saved, "Lançamento criado."));
+    }
+
+    @FXML
+    private void onEdit() {
+        edit(table.getSelectionModel().getSelectedItem());
+    }
+
+    @FXML
+    private void onDelete() {
+        LancamentoResponse entry = table.getSelectionModel().getSelectedItem();
+        if (entry != null && confirmDelete(entry)) {
+            tasks.run(() -> {
+                api.deleteLancamento(entry.id());
+                return entry;
+            }, deleted -> {
+                load(currentPage);
+                showNotice("Lançamento excluído.");
+            }, failure -> {
+                // A lista pode estar velha: quem falhou talvez já tenha sido excluído em outro aparelho.
+                load(currentPage);
+                showError(failure);
+            });
+        }
+    }
+
+    private void edit(LancamentoResponse entry) {
+        if (entry != null) {
+            navigator.openEntryForm(entry, saved -> onSaved(saved, "Lançamento salvo."));
+        }
+    }
+
+    private void onSaved(LancamentoResponse saved, String message) {
+        load(currentPage);
+        showNotice(appliedFilter.matches(saved)
+                ? message
+                : message + " Ele não aparece na lista por causa dos filtros atuais.");
+    }
+
+    private boolean confirmDelete(LancamentoResponse entry) {
+        ButtonType delete = new ButtonType("Excluir", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancel = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "", delete, cancel);
+        alert.initOwner(table.getScene().getWindow());
+        alert.setTitle("Excluir lançamento");
+        alert.setHeaderText("Excluir este lançamento?");
+        alert.setContentText("%s, %s%s%n%nEle deixa de contar no saldo e pode ser restaurado depois.".formatted(
+                Formats.date(entry.data()), Formats.currency(entry.valor()),
+                entry.descricao() == null ? "" : ", " + entry.descricao()));
+        return alert.showAndWait().filter(delete::equals).isPresent();
     }
 
     private void configureColumns() {
@@ -147,6 +207,21 @@ public class LancamentosController {
         bindText(typeColumn, item -> item.tipo().label());
         amountColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue()));
         amountColumn.setCellFactory(column -> new AmountCell());
+    }
+
+    private void configureRows() {
+        BooleanBinding nothingSelected = table.getSelectionModel().selectedItemProperty().isNull();
+        editButton.disableProperty().bind(nothingSelected);
+        deleteButton.disableProperty().bind(nothingSelected);
+        table.setRowFactory(view -> {
+            TableRow<LancamentoResponse> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    edit(row.getItem());
+                }
+            });
+            return row;
+        });
     }
 
     private static void bindText(
@@ -202,9 +277,9 @@ public class LancamentosController {
     }
 
     private void applyFilter() {
-        LocalDate start = startPicker.getValue();
-        LocalDate end = endPicker.getValue();
-        appliedFilter = new LancamentoFilter(start, end, typeBox.getValue().value(), categoryBox.getValue().value());
+        appliedFilter = new LancamentoFilter(
+                startPicker.getValue(), endPicker.getValue(),
+                typeBox.getValue().value(), categoryBox.getValue().value());
         load(0);
     }
 
@@ -227,12 +302,18 @@ public class LancamentosController {
                         table.getItems().clear();
                         placeholderLabel.setText("Não foi possível carregar os lançamentos.");
                         pageLabel.setText("");
+                        noticeLabel.setVisible(false);
                         showError(failure);
                     }
                 });
     }
 
     private void showPage(PageResponse<LancamentoResponse> result) {
+        // Excluir o único item da última página deixaria o usuário em uma página que não existe mais.
+        if (result.conteudo().isEmpty() && result.pagina() > 0) {
+            load(Math.max(result.totalPaginas() - 1, 0));
+            return;
+        }
         currentPage = result.pagina();
         placeholderLabel.setText("Nenhum lançamento encontrado.");
         table.getItems().setAll(result.conteudo());
@@ -244,6 +325,11 @@ public class LancamentosController {
                 : "Página %d de %d · %d %s".formatted(
                         currentPage + 1, result.totalPaginas(), result.totalElementos(),
                         result.totalElementos() == 1 ? "lançamento" : "lançamentos"));
+    }
+
+    private void showNotice(String text) {
+        noticeLabel.setText(text);
+        noticeLabel.setVisible(true);
     }
 
     private void showError(ApiException failure) {

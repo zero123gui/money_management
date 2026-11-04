@@ -14,7 +14,13 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="br.com.financeiro.desktop.controller.LancamentosController"
       styleClass="content" spacing="12">
-    <Label text="Lançamentos" styleClass="title"/>
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <Label text="Lançamentos" styleClass="title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="deleteButton" text="Excluir" onAction="#onDelete"/>
+        <Button fx:id="editButton" text="Editar" onAction="#onEdit"/>
+        <Button fx:id="newButton" text="Novo lançamento" onAction="#onNew" styleClass="primary-button"/>
+    </HBox>
 
     <FlowPane hgap="12" vgap="8" rowValignment="BOTTOM">
         <VBox spacing="4">
@@ -33,10 +39,11 @@
             <Label text="Categoria" labelFor="$categoryBox" styleClass="field-label"/>
             <ComboBox fx:id="categoryBox" prefWidth="150"/>
         </VBox>
-        <Button fx:id="filterButton" text="Filtrar" defaultButton="true" onAction="#onFilter" styleClass="primary-button"/>
+        <Button fx:id="filterButton" text="Filtrar" defaultButton="true" onAction="#onFilter"/>
         <Button fx:id="clearButton" text="Limpar" onAction="#onClearFilters"/>
     </FlowPane>
 
+    <Label fx:id="noticeLabel" visible="false" wrapText="true" styleClass="form-notice"/>
     <Label fx:id="errorLabel" visible="false" wrapText="true" styleClass="form-error"/>
 
     <TableView fx:id="table" VBox.vgrow="ALWAYS">

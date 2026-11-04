@@ -1,12 +1,15 @@
 package br.com.financeiro.desktop.controller;
 
 import br.com.financeiro.desktop.api.ApiClient;
+import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.session.Session;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.function.Consumer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -22,6 +25,7 @@ public class Navigator {
     private final Session session;
     private final ApiClient api;
     private final ApiTasks tasks = new ApiTasks(this::onSessionExpired);
+    private Stage openForm;
 
     /**
      * Cria o navegador.
@@ -67,10 +71,47 @@ public class Navigator {
         controller.showNotice(notice);
     }
 
+    /**
+     * Abre o formulário de lançamento em uma janela sobre a principal.
+     *
+     * @param entry   lançamento a editar, ou {@code null} para criar um novo
+     * @param onSaved recebe o lançamento depois de salvo, com o formulário já fechado
+     */
+    public void openEntryForm(LancamentoResponse entry, Consumer<LancamentoResponse> onSaved) {
+        FXMLLoader loader = newLoader("lancamento-form.fxml");
+        Parent root;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Não foi possível abrir o formulário de lançamento", e);
+        }
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(stage.getScene().getStylesheets());
+
+        Stage form = new Stage();
+        form.initOwner(stage);
+        form.initModality(Modality.WINDOW_MODAL);
+        form.setTitle(entry == null ? "Novo lançamento" : "Editar lançamento");
+        form.setResizable(false);
+        form.setScene(scene);
+        openForm = form;
+
+        LancamentoFormController controller = loader.getController();
+        controller.open(entry, saved -> {
+            form.close();
+            onSaved.accept(saved);
+        }, form::close);
+        form.show();
+    }
+
     private void onSessionExpired() {
         // Várias chamadas podem expirar juntas; só a primeira leva ao login, senão
         // as seguintes apagariam o que o usuário já começou a digitar nele.
         if (session.isActive()) {
+            // Sem isto, o formulário ficaria aberto e bloqueando a tela de login atrás dele.
+            if (openForm != null) {
+                openForm.close();
+            }
             session.clear();
             showLoginWithNotice("Sua sessão expirou. Entre novamente.");
         }
@@ -125,7 +166,10 @@ public class Navigator {
             return new MainController(api, tasks, this);
         }
         if (type == LancamentosController.class) {
-            return new LancamentosController(api, tasks);
+            return new LancamentosController(api, tasks, this);
+        }
+        if (type == LancamentoFormController.class) {
+            return new LancamentoFormController(api, tasks);
         }
         throw new IllegalArgumentException("Controller desconhecido: " + type.getName());
     }
