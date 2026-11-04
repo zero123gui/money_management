@@ -2,7 +2,7 @@
 
 > Atualize este arquivo **ao fim de cada sessão**. Decisões e motivos ficam em `DECISOES.md`.
 
-**Última atualização:** 2026-11-03
+**Última atualização:** 2026-11-04
 
 ## Já feito
 
@@ -77,18 +77,32 @@
   - [x] PRs de lançamentos (#7) e relatórios (#8) mergeados na `main`.
   - [x] `springdoc-openapi` com Swagger desligado por padrão; liga com `SWAGGER_ENABLED=true`.
   - [x] `SwaggerEnabledTest` confere a especificação contra as 17 rotas do contrato, e `SwaggerDisabledTest` confere o bloqueio padrão.
+- [x] Sessão da base do desktop (2026-11-04):
+  - [x] PR de OpenAPI (#9) mergeado na `main`; Swagger conferido pelo usuário no navegador.
+  - [x] Proposta do desktop aprovada (decisões em `DECISOES.md`, "Desktop: projeto e sessão").
+  - [x] Módulo `desktop` com JavaFX 21: login, cadastro e logout (RF-01 a RF-03), com o token só na memória.
+  - [x] `401` em rota autenticada volta para o login com aviso.
+  - [x] `ApiClientTest`, `ApiConfigTest` e `ViewsLoadTest`.
+  - [x] `mvn verify` na raiz passa: 117 testes no backend e 33 no desktop.
+  - [x] Conferido à mão pelo usuário: login com Enter e Tab, e a mensagem de API fora do ar.
+  - [x] Branches locais já mergeadas removidas.
 
 ## Próxima sessão
 
-Ordem sugerida:
+Ordem sugerida para o desktop:
 
-1. [ ] Desktop: criar o cliente JavaFX 21.
+1. [ ] Navegação e listagem: menu lateral e lista de lançamentos com filtros e paginação (RF-10).
+2. [ ] Formulário de lançamentos: criar, editar e excluir (RF-06 a RF-09).
+3. [ ] Resumo: saldo e totais por categoria, em tabela (RF-16, RF-17).
+4. [ ] Categorias: gestão das categorias próprias (RF-15).
+5. [ ] Excluídos: lista e restauração (RF-24).
+6. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
 
 ## Backlog (depois)
 
 - [ ] Backend: limitar tentativas de login, antes de publicar na nuvem.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
-- [ ] CI (build e testes) e proteção da branch `main`.
+- [ ] CI (build e testes) e proteção da branch `main`. Conferir o `ViewsLoadTest` em ambiente sem tela: ele deveria ser ignorado, mas isso ainda não foi testado.
 - [ ] Revisão de segurança antes de qualquer deploy.
 - [ ] Pós-MVP: forma de pagamento, recorrência, parcelas, exportação CSV, limite por categoria.
 - [ ] Pós-MVP: versão para macOS.
@@ -97,4 +111,5 @@ Ordem sugerida:
 ## Pendências e dúvidas em aberto
 
 - Provedor de nuvem para a API e o banco (decidir depois do MVP local).
+- Testar à mão a expiração real do token no desktop, depois de 1 hora de sessão. O retorno ao login só foi testado com um token inválido.
 - Trocar a senha não invalida os tokens já emitidos, que valem até expirar (no máximo 1 hora). Decidir se isso é aceitável antes de publicar na nuvem. Invalidar exigiria uma coluna nova em `usuario`.

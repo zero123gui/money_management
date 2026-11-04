@@ -4,14 +4,14 @@ Aplicação desktop para a família registrar e acompanhar receitas e despesas, 
 
 ## Status
 
-🟡 **Em desenvolvimento.** Backend com a estrutura inicial e o banco; ainda sem endpoints.
+🟡 **Em desenvolvimento.** Backend do MVP pronto; desktop com login, cadastro e logout.
 
 - [x] Decisões de arquitetura e convenções do projeto
 - [x] Estrutura do monorepo (`backend/`, `desktop/`)
 - [x] Requisitos e modelo de dados do MVP
 - [x] Backend: projeto Spring Boot e migração inicial do banco
-- [ ] Backend: API, autenticação e lançamentos
-- [ ] Desktop: cliente JavaFX
+- [x] Backend: API, autenticação e lançamentos
+- [ ] Desktop: cliente JavaFX (em andamento)
 
 Detalhes em [`docs/PROGRESSO.md`](docs/PROGRESSO.md).
 
@@ -43,9 +43,9 @@ financeiro/
 
 ## Como executar
 
-Pré-requisitos: Java 21, Maven e PostgreSQL. Para compilar e testar tudo, na raiz: `mvn verify`.
+Pré-requisitos: Java 21, Maven e PostgreSQL. Para compilar e testar tudo, na raiz: `mvn verify` (com o Docker Desktop aberto).
 
-Para rodar a API localmente, veja [`backend/README.md`](backend/README.md).
+Para rodar a API localmente, veja [`backend/README.md`](backend/README.md). Para rodar o cliente, veja [`desktop/README.md`](desktop/README.md).
 
 ## Contribuindo
 
