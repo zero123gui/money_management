@@ -4,14 +4,16 @@ Aplicação desktop para a família registrar e acompanhar receitas e despesas, 
 
 ## Status
 
-🟡 **Em desenvolvimento.** Backend do MVP pronto; desktop com login, cadastro, logout, resumo, lançamentos (listar, criar, editar, excluir e restaurar) e categorias.
+🟡 **Em desenvolvimento.** Backend e telas do desktop do MVP prontos, rodando localmente; ainda sem publicação na nuvem nem instalador.
 
 - [x] Decisões de arquitetura e convenções do projeto
 - [x] Estrutura do monorepo (`backend/`, `desktop/`)
 - [x] Requisitos e modelo de dados do MVP
 - [x] Backend: projeto Spring Boot e migração inicial do banco
 - [x] Backend: API, autenticação e lançamentos
-- [ ] Desktop: cliente JavaFX (em andamento)
+- [x] Desktop: telas do cliente JavaFX
+- [ ] Publicação da API e do banco na nuvem
+- [ ] Desktop: instalador para o Windows
 
 Detalhes em [`docs/PROGRESSO.md`](docs/PROGRESSO.md).
 

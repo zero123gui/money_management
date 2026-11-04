@@ -109,16 +109,20 @@
   - [x] PR de categorias (#14) mergeado na `main`.
   - [x] Tela de Excluídos: lista paginada e restauração (RF-24), com a hora da exclusão no fuso do computador.
   - [x] Novos casos em `ApiClientTest`, `FormatsTest` e `ViewsLoadTest`.
+- [x] Sessão da conta do desktop (2026-11-04):
+  - [x] Merge dos excluídos na `main`.
+  - [x] Tela de Conta: dados do usuário, troca de senha (RF-04) e exclusão da conta com confirmação pelo e-mail (RF-05).
+  - [x] Novos casos em `ApiClientTest` e `ViewsLoadTest`.
+  - **Todas as telas do MVP estão prontas no desktop, rodando contra a API local.**
 
 ## Próxima sessão
 
-Ordem sugerida para o desktop:
-
-1. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
+O plano de telas do desktop terminou. A próxima sessão começa pelos itens do backlog, na ordem de `DECISOES.md`, "Próximos passos".
 
 ## Backlog (depois)
 
 - [ ] Backend: limitar tentativas de login, antes de publicar na nuvem.
+- [ ] Desktop: gerar um instalador para o Windows, para a família usar sem Maven nem JDK.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`. Conferir o `ViewsLoadTest` em ambiente sem tela: ele deveria ser ignorado, mas isso ainda não foi testado.
 - [ ] Revisão de segurança antes de qualquer deploy.
@@ -130,4 +134,6 @@ Ordem sugerida para o desktop:
 
 - Provedor de nuvem para a API e o banco (decidir depois do MVP local).
 - Testar à mão a expiração real do token no desktop, depois de 1 hora de sessão. O retorno ao login só foi testado com um token inválido.
+- Mensagem genérica da API ("O recurso pedido não existe.") ao excluir ou restaurar um lançamento que mudou em outro aparelho. Funciona, mas o texto poderia ser mais claro.
+- Campo de data com texto inválido, ao perder o foco com um clique: pode ficar vazio sem mostrar erro. Conferir no uso real.
 - Trocar a senha não invalida os tokens já emitidos, que valem até expirar (no máximo 1 hora). Decidir se isso é aceitável antes de publicar na nuvem. Invalidar exigiria uma coluna nova em `usuario`.

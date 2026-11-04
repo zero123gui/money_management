@@ -1,5 +1,6 @@
 package br.com.financeiro.desktop.api;
 
+import br.com.financeiro.desktop.api.dto.AlterarSenhaRequest;
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaCreateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
@@ -278,6 +279,31 @@ public class ApiClient {
         HttpRequest.Builder builder = request("/lancamentos/" + id + "/restaurar")
                 .POST(HttpRequest.BodyPublishers.noBody());
         return sendAuthenticated(builder, typeOf(LancamentoResponse.class));
+    }
+
+    /**
+     * Altera a senha do usuário (RF-04). Aqui, um {@code 400} com o campo
+     * {@code senhaAtual} indica senha errada; a sessão continua valendo.
+     *
+     * @param request senha atual e nova senha
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public void changePassword(AlterarSenhaRequest request) {
+        HttpRequest.Builder builder = request("/usuarios/me/senha")
+                .header("Content-Type", "application/json")
+                .PUT(jsonBody(request));
+        sendAuthenticated(builder, typeOf(Void.class));
+    }
+
+    /**
+     * Exclui de forma definitiva a conta e todos os dados do usuário (RF-05).
+     *
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public void deleteAccount() {
+        sendAuthenticated(request("/usuarios/me").DELETE(), typeOf(Void.class));
     }
 
     private HttpRequest.BodyPublisher jsonBody(Object body) {

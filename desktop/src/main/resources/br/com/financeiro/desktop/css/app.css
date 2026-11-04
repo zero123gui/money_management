@@ -54,6 +54,23 @@
     -fx-background-color: -color-accent-dark;
 }
 
+.danger-button {
+    -fx-background-color: #b3261e;
+    -fx-background-radius: 4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+
+.danger-button:hover {
+    -fx-background-color: #8c1d18;
+}
+
+.content-scroll,
+.content-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
 .top-bar {
     -fx-background-color: white;
     -fx-border-color: transparent transparent -color-border transparent;
