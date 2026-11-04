@@ -1,14 +1,20 @@
 package br.com.financeiro.backend.repository;
 
 import br.com.financeiro.backend.entity.Lancamento;
+import br.com.financeiro.backend.entity.Tipo;
+import java.time.LocalDate;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Acesso a lançamentos. Toda consulta exige o dono e separa ativos de excluídos,
  * e não há exclusão física: excluir é preencher {@code deletedAt} na entidade.
+ * As consultas já trazem a categoria, que toda resposta da API exibe.
  */
 public interface LancamentoRepository extends Repository<Lancamento, Long> {
 
@@ -27,6 +33,7 @@ public interface LancamentoRepository extends Repository<Lancamento, Long> {
      * @param ownerId identificador do usuário autenticado
      * @return o lançamento, se existir, for do usuário e estiver ativo
      */
+    @EntityGraph(attributePaths = "category")
     Optional<Lancamento> findByIdAndOwnerIdAndDeletedAtIsNull(Long id, Long ownerId);
 
     /**
@@ -36,16 +43,36 @@ public interface LancamentoRepository extends Repository<Lancamento, Long> {
      * @param ownerId identificador do usuário autenticado
      * @return o lançamento, se existir, for do usuário e estiver excluído
      */
+    @EntityGraph(attributePaths = "category")
     Optional<Lancamento> findByIdAndOwnerIdAndDeletedAtIsNotNull(Long id, Long ownerId);
 
     /**
      * Lista os lançamentos ativos do usuário, do mais recente para o mais antigo.
+     * Os filtros são opcionais: {@code null} não filtra.
      *
-     * @param ownerId  identificador do usuário autenticado
-     * @param pageable página pedida
+     * @param ownerId    identificador do usuário autenticado
+     * @param start      data inicial, inclusiva
+     * @param end        data final, inclusiva
+     * @param type       tipo do lançamento
+     * @param categoryId identificador da categoria
+     * @param pageable   página pedida
      * @return a página de lançamentos ativos
      */
-    Page<Lancamento> findByOwnerIdAndDeletedAtIsNullOrderByDateDescIdDesc(Long ownerId, Pageable pageable);
+    // coalesce em vez de ":x is null or ...": sem a coluna ao lado, o PostgreSQL
+    // não consegue deduzir o tipo de um parâmetro nulo e recusa a consulta.
+    @EntityGraph(attributePaths = "category")
+    @Query("""
+            select l from Lancamento l
+            where l.owner.id = :ownerId and l.deletedAt is null
+              and l.date >= coalesce(:start, l.date)
+              and l.date <= coalesce(:end, l.date)
+              and l.type = coalesce(:type, l.type)
+              and l.category.id = coalesce(:categoryId, l.category.id)
+            order by l.date desc, l.id desc
+            """)
+    Page<Lancamento> findActive(@Param("ownerId") Long ownerId, @Param("start") LocalDate start,
+            @Param("end") LocalDate end, @Param("type") Tipo type, @Param("categoryId") Long categoryId,
+            Pageable pageable);
 
     /**
      * Lista os lançamentos excluídos do usuário, do excluído mais recentemente
@@ -55,5 +82,6 @@ public interface LancamentoRepository extends Repository<Lancamento, Long> {
      * @param pageable página pedida
      * @return a página de lançamentos excluídos
      */
+    @EntityGraph(attributePaths = "category")
     Page<Lancamento> findByOwnerIdAndDeletedAtIsNotNullOrderByDeletedAtDesc(Long ownerId, Pageable pageable);
 }

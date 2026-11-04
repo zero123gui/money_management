@@ -65,13 +65,16 @@
   - [x] PR de senha e conta (#5) mergeado na `main`.
   - [x] `GET`, `POST` e `PUT /categorias` (RF-14, RF-15), usando `AuthorizationService.assertCanEdit`.
   - [x] `CategoriaApiTest`, que também cobre a resposta `403` por HTTP.
+- [x] Sessão de lançamentos (2026-11-04):
+  - [x] PR de categorias (#6) mergeado na `main`.
+  - [x] Rotas de `/lancamentos` (RF-06 a RF-10, RF-24): filtros, paginação, exclusão lógica, lista de excluídos e restauração.
+  - [x] `LancamentoApiTest`, com a separação entre usuários em todas as rotas.
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Backend: endpoints de lançamentos (`docs/API.md`, seção 2.4), com filtros e exclusão lógica.
-2. [ ] Backend: relatórios de saldo e resumo por categoria (`docs/API.md`, seção 2.5).
+1. [ ] Backend: relatórios de saldo e resumo por categoria (`docs/API.md`, seção 2.5). As somas ainda não existem em `LancamentoRepository`.
 
 ## Backlog (depois)
 

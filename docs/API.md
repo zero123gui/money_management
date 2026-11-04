@@ -239,8 +239,8 @@ Formato de um lançamento:
 
 Lista os lançamentos ativos (não excluídos) do usuário, paginados, do mais recente para o mais antigo.
 
-- Filtros, todos opcionais: `inicio` e `fim` (datas, inclusivas), `tipo`, `categoriaId`.
-- `200` no formato de paginação (seção 1.7).
+- Filtros, todos opcionais: `inicio` e `fim` (datas, inclusivas), `tipo`, `categoriaId`. Com `inicio` depois de `fim`, ou com uma categoria de outro usuário, a lista vem vazia.
+- `200` no formato de paginação (seção 1.7). A ordem é fixa; não existe parâmetro de ordenação.
 
 #### `GET /lancamentos/{id}` 🔒
 
@@ -259,18 +259,20 @@ Lista os lançamentos ativos (não excluídos) do usuário, paginados, do mais r
 ```
 
 - Validações:
-  - `tipo`, `valor`, `data` e `categoriaId` obrigatórios; `descricao` opcional (até 255 caracteres);
-  - `valor` maior que zero, com no máximo 2 casas decimais;
-  - a categoria deve ser padrão ou do próprio usuário, estar ativa e ter o mesmo `tipo` do lançamento.
+  - `tipo`, `valor`, `data` e `categoriaId` obrigatórios; `descricao` opcional (até 255 caracteres; em branco vira `null`);
+  - `valor` maior que zero, com até 13 dígitos inteiros e no máximo 2 casas decimais;
+  - a categoria deve ser padrão ou do próprio usuário, estar ativa e ter o mesmo `tipo` do lançamento. Caso contrário, `400` com o campo `categoriaId` em `erros`; categoria de outro usuário recebe a mesma mensagem de uma inexistente.
 - `201` com o lançamento e o cabeçalho `Location: /api/v1/lancamentos/42`.
 
 #### `PUT /lancamentos/{id}` 🔒
 
-Mesmo corpo e validações do `POST`. `200` com o lançamento atualizado.
+Mesmo corpo e validações do `POST`. `200` com o lançamento atualizado. `404` se não existir, se for de outro usuário ou se estiver excluído.
+
+Como a categoria precisa estar ativa, um lançamento cuja categoria foi desativada só pode ser editado se trocar de categoria ou depois de reativá-la.
 
 #### `DELETE /lancamentos/{id}` 🔒
 
-**Exclusão lógica** (RF-09): preenche `excluidoEm`, sem apagar e sem alterar o valor. O lançamento deixa de aparecer nas listas e de contar no saldo e nos resumos. `204`.
+**Exclusão lógica** (RF-09): preenche `excluidoEm`, sem apagar e sem alterar o valor. O lançamento deixa de aparecer nas listas e de contar no saldo e nos resumos. `204`. `404` se não existir, se for de outro usuário ou se já estiver excluído.
 
 #### `GET /lancamentos/excluidos` 🔒
 

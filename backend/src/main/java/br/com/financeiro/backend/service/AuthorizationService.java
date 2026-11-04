@@ -69,7 +69,7 @@ public class AuthorizationService {
                     "Categorias padrão não podem ser alteradas.");
         }
         if (!categoria.getOwner().getId().equals(currentUserId())) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "Não encontrado", "O recurso pedido não existe.");
+            throw ApiException.notFound();
         }
     }
 }
