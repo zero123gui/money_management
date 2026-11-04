@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -120,6 +121,23 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .sorted(Comparator.comparing(FieldProblem::campo))
                 .toList();
         return ResponseEntity.badRequest().headers(headers).body(invalidFields(errors));
+    }
+
+    /**
+     * Responde a um parâmetro obrigatório ausente na URL, indicando qual é.
+     *
+     * @param exception parâmetro ausente
+     * @param headers   cabeçalhos da resposta
+     * @param status    código HTTP definido pelo Spring
+     * @param request   requisição recebida
+     * @return a resposta 400
+     */
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException exception, HttpHeaders headers, HttpStatusCode status,
+            WebRequest request) {
+        ProblemDetail problem = invalidFields(List.of(new FieldProblem(exception.getParameterName(), "é obrigatório")));
+        return ResponseEntity.badRequest().headers(headers).body(problem);
     }
 
     /**

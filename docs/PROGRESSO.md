@@ -69,18 +69,22 @@
   - [x] PR de categorias (#6) mergeado na `main`.
   - [x] Rotas de `/lancamentos` (RF-06 a RF-10, RF-24): filtros, paginação, exclusão lógica, lista de excluídos e restauração.
   - [x] `LancamentoApiTest`, com a separação entre usuários em todas as rotas.
+- [x] Sessão de relatórios (2026-11-04):
+  - [x] `GET /relatorios/saldo` (RF-16) e `GET /relatorios/categorias` (RF-17).
+  - [x] `RelatorioApiTest`, que confere os cálculos (RNF-14).
+  - **Todos os 17 endpoints do MVP estão implementados no backend.**
 
 ## Próxima sessão
 
 Ordem sugerida:
 
-1. [ ] Backend: relatórios de saldo e resumo por categoria (`docs/API.md`, seção 2.5). As somas ainda não existem em `LancamentoRepository`.
+1. [ ] Fazer o merge de `feature/backend-lancamentos` e depois o de `feature/backend-relatorios`, que foi criada a partir dela.
+2. [ ] Backend: documentação OpenAPI com `springdoc-openapi` e Swagger só no ambiente local (`docs/API.md`, seção 1.8).
+3. [ ] Desktop: criar o cliente JavaFX 21.
 
 ## Backlog (depois)
 
-- [ ] Backend: documentação OpenAPI com `springdoc-openapi` e Swagger só no ambiente local (`docs/API.md`, seção 1.8).
 - [ ] Backend: limitar tentativas de login, antes de publicar na nuvem.
-- [ ] Desktop: criar o cliente JavaFX 21.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`.
 - [ ] Revisão de segurança antes de qualquer deploy.
