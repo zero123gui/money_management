@@ -5,6 +5,7 @@ import br.com.financeiro.backend.dto.LoginRequest;
 import br.com.financeiro.backend.dto.TokenResponse;
 import br.com.financeiro.backend.entity.Usuario;
 import br.com.financeiro.backend.exception.ApiException;
+import br.com.financeiro.backend.exception.TooManyLoginAttemptsException;
 import br.com.financeiro.backend.repository.UsuarioRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class AuthService {
     private final UsuarioRepository usuarios;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final LoginAttemptLimiter loginAttempts;
     private final String decoyHash;
 
     /**
@@ -30,9 +32,12 @@ public class AuthService {
      * @param usuarios        acesso a usuários
      * @param passwordEncoder codificador de senhas
      * @param tokenService    emissor de tokens
+     * @param loginAttempts   limite de tentativas de login
      */
-    public AuthService(UsuarioRepository usuarios, PasswordEncoder passwordEncoder, TokenService tokenService) {
+    public AuthService(UsuarioRepository usuarios, PasswordEncoder passwordEncoder, TokenService tokenService,
+            LoginAttemptLimiter loginAttempts) {
         this.usuarios = usuarios;
+        this.loginAttempts = loginAttempts;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.decoyHash = passwordEncoder.encode(UUID.randomUUID().toString());
@@ -63,16 +68,24 @@ public class AuthService {
      * @param request e-mail e senha
      * @return o token do usuário
      * @throws ApiException com 401 se o e-mail não existir ou a senha estiver errada
+     * @throws TooManyLoginAttemptsException com 429 se o e-mail estiver bloqueado
      */
     public TokenResponse login(LoginRequest request) {
+        // Antes de conferir a senha: uma senha certa também é recusada, senão o
+        // atacante continuaria descobrindo se acertou mesmo com o bloqueio.
+        loginAttempts.remainingBlock(request.email()).ifPresent(remaining -> {
+            throw new TooManyLoginAttemptsException(remaining);
+        });
         Optional<Usuario> usuario = usuarios.findByEmail(request.email());
         // Confere um hash mesmo sem usuário: o BCrypt é lento de propósito, e
         // responder mais rápido revelaria quais e-mails estão cadastrados.
         String hash = usuario.map(Usuario::getPasswordHash).orElse(decoyHash);
         boolean passwordMatches = passwordEncoder.matches(request.senha(), hash);
         if (usuario.isEmpty() || !passwordMatches) {
+            loginAttempts.recordFailure(request.email());
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "E-mail ou senha inválidos.");
         }
+        loginAttempts.recordSuccess(request.email());
         return tokenService.issue(usuario.get());
     }
 

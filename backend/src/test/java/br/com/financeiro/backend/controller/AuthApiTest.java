@@ -133,6 +133,74 @@ class AuthApiTest extends ApiTestSupport {
         assertThat(unknownEmail).isEqualTo(wrongPassword).contains("E-mail ou senha inválidos.");
     }
 
+    private void failLogin(String email, int times) {
+        for (int i = 0; i < times; i++) {
+            postLogin(email, "senha-errada").expectStatus().isUnauthorized();
+        }
+    }
+
+    @Test
+    void fiveWrongPasswordsBlockTheEmailEvenWithTheRightPassword() {
+        String email = register();
+        failLogin(email, 5);
+
+        postLogin(email, SENHA)
+                .expectStatus().isEqualTo(429)
+                .expectHeader().value(HttpHeaders.RETRY_AFTER,
+                        seconds -> assertThat(Long.parseLong(seconds)).isBetween(1L, 900L))
+                .expectBody()
+                .jsonPath("$.status").isEqualTo(429)
+                .jsonPath("$.detail").isEqualTo("Muitas tentativas de login. Tente novamente em 15 minutos.");
+    }
+
+    @Test
+    void blockedAnswerDoesNotRevealWhetherTheEmailExists() {
+        String registered = register();
+        String unknown = uniqueEmail();
+        failLogin(registered, 5);
+        failLogin(unknown, 5);
+
+        String registeredAnswer = postLogin(registered, SENHA).expectStatus().isEqualTo(429)
+                .expectBody(String.class).returnResult().getResponseBody();
+        String unknownAnswer = postLogin(unknown, SENHA).expectStatus().isEqualTo(429)
+                .expectBody(String.class).returnResult().getResponseBody();
+
+        assertThat(unknownAnswer).isEqualTo(registeredAnswer.replace(registered, unknown));
+    }
+
+    @Test
+    void capitalLettersDoNotEscapeTheBlock() {
+        String email = register();
+        failLogin(email, 5);
+
+        postLogin(email.toUpperCase(), SENHA).expectStatus().isEqualTo(429);
+    }
+
+    @Test
+    void rightPasswordClearsTheFailureCount() {
+        String email = register();
+        failLogin(email, 4);
+        postLogin(email, SENHA).expectStatus().isOk();
+
+        failLogin(email, 4);
+
+        postLogin(email, SENHA).expectStatus().isOk();
+    }
+
+    @Test
+    void blockingOneEmailDoesNotAffectOthersOrValidTokens() {
+        String blocked = register();
+        String token = login(blocked);
+        String other = register();
+        failLogin(blocked, 5);
+
+        postLogin(other, SENHA).expectStatus().isOk();
+        client.get().uri("/api/v1/usuarios/me")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
     @Test
     void loginWithVeryLongPasswordIsJustWrong() {
         String email = register();
