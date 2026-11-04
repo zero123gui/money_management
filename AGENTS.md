@@ -45,4 +45,4 @@ Experiente em Java, pouco familiar com Python, Electron e Tauri. Prefira soluç�
 
 ## Estado atual
 
-Planejamento concluído: requisitos, modelo de dados e contrato da API aprovados. O backend tem o projeto Spring Boot (Maven multimódulo a partir da raiz), a migração `V1` do Flyway, as entidades JPA, os repositories e a autenticação JWT, com os endpoints `/auth/*`, `/usuarios/me`, `/categorias` e `/lancamentos`. Faltam os de relatórios. Os testes de integração usam Testcontainers: o Docker Desktop precisa estar aberto para rodar `mvn verify`. O `desktop/` ainda não tem código. Veja `docs/PROGRESSO.md`.
+Planejamento concluído: requisitos, modelo de dados e contrato da API aprovados. O backend tem o projeto Spring Boot (Maven multimódulo a partir da raiz), a migração `V1` do Flyway, as entidades JPA, os repositories e a autenticação JWT, com os 17 endpoints do MVP (`/auth/*`, `/usuarios/me`, `/categorias`, `/lancamentos` e `/relatorios/*`). Os testes de integração usam Testcontainers: o Docker Desktop precisa estar aberto para rodar `mvn verify`. O `desktop/` ainda não tem código. Veja `docs/PROGRESSO.md`.

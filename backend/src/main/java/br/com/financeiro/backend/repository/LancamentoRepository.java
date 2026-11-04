@@ -1,8 +1,10 @@
 package br.com.financeiro.backend.repository;
 
+import br.com.financeiro.backend.dto.ResumoCategoriaResponse;
 import br.com.financeiro.backend.entity.Lancamento;
 import br.com.financeiro.backend.entity.Tipo;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -84,4 +86,45 @@ public interface LancamentoRepository extends Repository<Lancamento, Long> {
      */
     @EntityGraph(attributePaths = "category")
     Page<Lancamento> findByOwnerIdAndDeletedAtIsNotNullOrderByDeletedAtDesc(Long ownerId, Pageable pageable);
+
+    /**
+     * Soma os lançamentos ativos do usuário em um período, por tipo. Um tipo sem
+     * lançamentos não aparece no resultado.
+     *
+     * @param ownerId identificador do usuário autenticado
+     * @param start   data inicial, inclusiva
+     * @param end     data final, inclusiva
+     * @return o total de cada tipo com lançamentos
+     */
+    @Query("""
+            select new br.com.financeiro.backend.repository.TypeTotal(l.type, sum(l.amount))
+            from Lancamento l
+            where l.owner.id = :ownerId and l.deletedAt is null and l.date between :start and :end
+            group by l.type
+            """)
+    List<TypeTotal> sumActiveByType(@Param("ownerId") Long ownerId, @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
+
+    /**
+     * Soma os lançamentos ativos do usuário em um período, por categoria, do
+     * maior total para o menor. Entra também categoria hoje desativada, pois o
+     * dinheiro daquele período continua lançado nela.
+     *
+     * @param ownerId identificador do usuário autenticado
+     * @param start   data inicial, inclusiva
+     * @param end     data final, inclusiva
+     * @param type    tipo do lançamento, ou {@code null} para todos
+     * @return o total e a quantidade de cada categoria com lançamentos
+     */
+    @Query("""
+            select new br.com.financeiro.backend.dto.ResumoCategoriaResponse(
+                c.id, c.name, l.type, sum(l.amount), count(l))
+            from Lancamento l join l.category c
+            where l.owner.id = :ownerId and l.deletedAt is null and l.date between :start and :end
+              and l.type = coalesce(:type, l.type)
+            group by c.id, c.name, l.type
+            order by sum(l.amount) desc, c.name, c.id
+            """)
+    List<ResumoCategoriaResponse> sumActiveByCategory(@Param("ownerId") Long ownerId,
+            @Param("start") LocalDate start, @Param("end") LocalDate end, @Param("type") Tipo type);
 }

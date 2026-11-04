@@ -288,7 +288,7 @@ Volta um lançamento excluído a ser ativo (`excluidoEm = null`).
 
 ### 2.5 Relatórios
 
-Ambos consideram apenas lançamentos ativos do usuário. `inicio` e `fim` são obrigatórios.
+Ambos consideram apenas lançamentos ativos do usuário. `inicio` e `fim` são obrigatórios e inclusivos: sem um deles, `400` com o parâmetro em `erros`. Com `inicio` depois de `fim`, o período fica vazio, sem erro.
 
 #### `GET /relatorios/saldo?inicio=2026-10-01&fim=2026-10-31` 🔒
 
@@ -304,7 +304,7 @@ Balanço geral do período (RF-16). `200`:
 }
 ```
 
-`saldo` pode ser negativo.
+`saldo` pode ser negativo. Sem lançamentos no período, os três valores vêm como `0.00`.
 
 #### `GET /relatorios/categorias?inicio=2026-10-01&fim=2026-10-31&tipo=DESPESA` 🔒
 
@@ -316,6 +316,8 @@ Total por categoria no período (RF-17). `tipo` é opcional. `200`, ordenado do 
   { "categoriaId": 7, "nome": "Mercado", "tipo": "DESPESA", "total": 1200.00, "quantidade": 8 }
 ]
 ```
+
+Só entram categorias com lançamentos no período, inclusive as desativadas depois. Sem `tipo`, receitas e despesas aparecem na mesma lista, ordenadas pelo total. Sem lançamentos, a lista vem vazia.
 
 ## 3. Fora do MVP
 
