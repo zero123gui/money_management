@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.financeiro.desktop.controller.CategoriasController"
+      styleClass="content" spacing="12">
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <Label text="Categorias" styleClass="title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="toggleButton" text="Desativar" onAction="#onToggle"/>
+        <Button fx:id="renameButton" text="Renomear" onAction="#onRename"/>
+        <Button fx:id="newButton" text="Nova categoria" onAction="#onNew" styleClass="primary-button"/>
+    </HBox>
+
+    <Label text="As categorias padrão valem para todos e não podem ser alteradas." styleClass="subtitle"/>
+
+    <Label fx:id="noticeLabel" visible="false" wrapText="true" minHeight="-Infinity" styleClass="form-notice"/>
+    <Label fx:id="errorLabel" visible="false" wrapText="true" minHeight="-Infinity" styleClass="form-error"/>
+
+    <TableView fx:id="table" VBox.vgrow="ALWAYS">
+        <placeholder>
+            <Label fx:id="placeholderLabel" styleClass="subtitle"/>
+        </placeholder>
+        <columns>
+            <TableColumn fx:id="nameColumn" text="Nome" sortable="false" reorderable="false" prefWidth="330"/>
+            <TableColumn fx:id="typeColumn" text="Tipo" sortable="false" reorderable="false" prefWidth="120"/>
+            <TableColumn fx:id="originColumn" text="Origem" sortable="false" reorderable="false" prefWidth="110"/>
+            <TableColumn fx:id="statusColumn" text="Situação" sortable="false" reorderable="false" prefWidth="100"/>
+        </columns>
+    </TableView>
+</VBox>

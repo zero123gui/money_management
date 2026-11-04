@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
+import br.com.financeiro.desktop.api.dto.CategoriaCreateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
+import br.com.financeiro.desktop.api.dto.CategoriaUpdateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
 import br.com.financeiro.desktop.api.dto.SaldoResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
@@ -374,6 +376,61 @@ class ApiClientTest {
 
         assertThatThrownBy(() -> client.listCategoriaTotals(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31)))
                 .isInstanceOf(SessionExpiredException.class);
+    }
+
+    @Test
+    void createsCategoryInTheContractFormat() {
+        session.open("meu-token");
+        respondWith("/categorias", 201, "application/json", """
+                {"id":7,"nome":"Mercado","tipo":"DESPESA","padrao":false,"ativa":true}""");
+
+        CategoriaResponse created = client.createCategoria(new CategoriaCreateRequest("Mercado", Tipo.DESPESA));
+
+        assertThat(receivedMethod.get()).isEqualTo("POST");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/categorias");
+        assertThat(receivedBody.get()).isEqualTo("""
+                {"nome":"Mercado","tipo":"DESPESA"}""");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+        assertThat(created).isEqualTo(new CategoriaResponse(7L, "Mercado", Tipo.DESPESA, false, true));
+    }
+
+    @Test
+    void updatesCategoryByItsIdWithoutSendingItsType() {
+        session.open("meu-token");
+        respondWith("/categorias/7", 200, "application/json", """
+                {"id":7,"nome":"Supermercado","tipo":"DESPESA","padrao":false,"ativa":false}""");
+
+        CategoriaResponse updated = client.updateCategoria(7L, new CategoriaUpdateRequest("Supermercado", false));
+
+        assertThat(receivedMethod.get()).isEqualTo("PUT");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/categorias/7");
+        assertThat(receivedBody.get()).isEqualTo("""
+                {"nome":"Supermercado","ativa":false}""");
+        assertThat(updated.ativa()).isFalse();
+    }
+
+    @Test
+    void duplicatedCategoryKeepsTheApiMessage() {
+        session.open("meu-token");
+        respondWithProblem("/categorias", 409, "Já existe uma categoria com este nome e tipo.");
+
+        ApiException failure = catchThrowableOfType(ApiException.class,
+                () -> client.createCategoria(new CategoriaCreateRequest("Mercado", Tipo.DESPESA)));
+
+        assertThat(failure.getStatus()).isEqualTo(409);
+        assertThat(failure.getMessage()).isEqualTo("Já existe uma categoria com este nome e tipo.");
+    }
+
+    @Test
+    void changingADefaultCategoryKeepsTheForbiddenMessage() {
+        session.open("meu-token");
+        respondWithProblem("/categorias/1", 403, "Categorias padrão não podem ser alteradas.");
+
+        ApiException failure = catchThrowableOfType(ApiException.class,
+                () -> client.updateCategoria(1L, new CategoriaUpdateRequest("Outro", true)));
+
+        assertThat(failure).isNotInstanceOf(SessionExpiredException.class);
+        assertThat(failure.getStatus()).isEqualTo(403);
     }
 
     @Test

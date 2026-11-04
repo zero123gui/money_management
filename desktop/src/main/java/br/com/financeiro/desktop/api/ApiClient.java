@@ -1,8 +1,10 @@
 package br.com.financeiro.desktop.api;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
+import br.com.financeiro.desktop.api.dto.CategoriaCreateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
 import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
+import br.com.financeiro.desktop.api.dto.CategoriaUpdateRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
@@ -214,6 +216,37 @@ public class ApiClient {
             query.add("fim=" + end);
         }
         return String.join("&", query);
+    }
+
+    /**
+     * Cria uma categoria própria (RF-15).
+     *
+     * @param request nome e tipo
+     * @return categoria criada
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public CategoriaResponse createCategoria(CategoriaCreateRequest request) {
+        HttpRequest.Builder builder = request("/categorias")
+                .header("Content-Type", "application/json")
+                .POST(jsonBody(request));
+        return sendAuthenticated(builder, typeOf(CategoriaResponse.class));
+    }
+
+    /**
+     * Renomeia, desativa ou reativa uma categoria própria (RF-15).
+     *
+     * @param id      identificador da categoria
+     * @param request novos nome e situação
+     * @return categoria alterada
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public CategoriaResponse updateCategoria(long id, CategoriaUpdateRequest request) {
+        HttpRequest.Builder builder = request("/categorias/" + id)
+                .header("Content-Type", "application/json")
+                .PUT(jsonBody(request));
+        return sendAuthenticated(builder, typeOf(CategoriaResponse.class));
     }
 
     private HttpRequest.BodyPublisher jsonBody(Object body) {
