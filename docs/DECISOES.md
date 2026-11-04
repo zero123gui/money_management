@@ -89,6 +89,8 @@ Decidido em 2026-11-04, com a proposta aprovada pelo usuário.
 - **Endereço da API em `API_BASE_URL`**, com `http://localhost:8080` como padrão. Fora da própria máquina, o aplicativo recusa HTTP. Motivo: publicar na nuvem não exige mudar o código, e senhas e tokens não passam abertos pela rede (RNF-03).
 - **Validação fica na API.** O cliente só compara os campos de senha e de confirmação no cadastro, pois a API recebe uma senha só.
 - **Depois do cadastro, o aplicativo já faz o login.** Se esse login falhar, leva à tela de login em vez de mostrar erro, pois a conta já existe.
+- **A lista de lançamentos abre no mês atual.** O botão Limpar tira todos os filtros, inclusive o período. Motivo: o mês corrente é o caso mais comum, e a API não define um período padrão.
+- **Valor na cor do tipo, sem sinal de menos**: a API sempre devolve valor positivo, e o tipo também aparece em uma coluna própria.
 - **Resumo sem gráfico no MVP**: uma tabela já atende o RF-17.
 - **Testes**: cliente HTTP contra um servidor local falso e carregamento de cada FXML. As telas são conferidas à mão. Motivo: testes automatizados de tela costumam ser frágeis, e as regras importantes já estão testadas no backend.
 

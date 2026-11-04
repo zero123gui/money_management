@@ -60,6 +60,45 @@
     -fx-padding: 12 20;
 }
 
+.side-menu {
+    -fx-background-color: white;
+    -fx-border-color: transparent -color-border transparent transparent;
+    -fx-padding: 12 8;
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 4;
+    -fx-alignment: center-left;
+    -fx-padding: 8 12;
+}
+
+.menu-item:hover {
+    -fx-background-color: #eef1f3;
+}
+
+.menu-item:selected {
+    -fx-background-color: -color-accent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.content {
+    -fx-padding: 20;
+}
+
+.amount-column {
+    -fx-alignment: center-right;
+}
+
+.amount-revenue {
+    -fx-text-fill: #1f6f5c;
+}
+
+.amount-expense {
+    -fx-text-fill: #b3261e;
+}
+
 .top-bar-title {
     -fx-font-weight: bold;
     -fx-font-size: 16px;

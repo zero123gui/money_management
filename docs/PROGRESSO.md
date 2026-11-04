@@ -86,17 +86,21 @@
   - [x] `mvn verify` na raiz passa: 117 testes no backend e 33 no desktop.
   - [x] Conferido à mão pelo usuário: login com Enter e Tab, e a mensagem de API fora do ar.
   - [x] Branches locais já mergeadas removidas.
+- [x] Sessão da listagem do desktop (2026-11-04):
+  - [x] PR da base do desktop (#10) mergeado na `main`; branches antigas do backend removidas do GitHub.
+  - [x] Menu lateral e tela de lançamentos com filtros por período, tipo e categoria, e paginação (RF-10).
+  - [x] Formatos brasileiros de moeda e data (RNF-07).
+  - [x] `FormatsTest` e novos casos em `ApiClientTest` e `ViewsLoadTest`.
 
 ## Próxima sessão
 
 Ordem sugerida para o desktop:
 
-1. [ ] Navegação e listagem: menu lateral e lista de lançamentos com filtros e paginação (RF-10).
-2. [ ] Formulário de lançamentos: criar, editar e excluir (RF-06 a RF-09).
-3. [ ] Resumo: saldo e totais por categoria, em tabela (RF-16, RF-17).
-4. [ ] Categorias: gestão das categorias próprias (RF-15).
-5. [ ] Excluídos: lista e restauração (RF-24).
-6. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
+1. [ ] Formulário de lançamentos: criar, editar e excluir (RF-06 a RF-09).
+2. [ ] Resumo: saldo e totais por categoria, em tabela (RF-16, RF-17).
+3. [ ] Categorias: gestão das categorias próprias (RF-15).
+4. [ ] Excluídos: lista e restauração (RF-24).
+5. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
 
 ## Backlog (depois)
 

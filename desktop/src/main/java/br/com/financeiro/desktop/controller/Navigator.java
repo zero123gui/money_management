@@ -76,9 +76,29 @@ public class Navigator {
         }
     }
 
-    private <T> T load(String view) {
+    /**
+     * Carrega uma tela para ser exibida dentro da tela principal.
+     *
+     * @param view nome do arquivo FXML
+     * @return raiz da tela
+     */
+    public Parent loadContent(String view) {
+        FXMLLoader loader = newLoader(view);
+        try {
+            return loader.load();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Não foi possível abrir a tela " + view, e);
+        }
+    }
+
+    private FXMLLoader newLoader(String view) {
         FXMLLoader loader = new FXMLLoader(Navigator.class.getResource(RESOURCES + "view/" + view));
         loader.setControllerFactory(this::createController);
+        return loader;
+    }
+
+    private <T> T load(String view) {
+        FXMLLoader loader = newLoader(view);
         try {
             Parent root = loader.load();
             if (stage.getScene() == null) {
@@ -103,6 +123,9 @@ public class Navigator {
         }
         if (type == MainController.class) {
             return new MainController(api, tasks, this);
+        }
+        if (type == LancamentosController.class) {
+            return new LancamentosController(api, tasks);
         }
         throw new IllegalArgumentException("Controller desconhecido: " + type.getName());
     }

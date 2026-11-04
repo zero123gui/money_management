@@ -68,7 +68,10 @@ class ViewsLoadTest {
     }
 
     @Test
-    void mainViewLoads() throws Exception {
-        assertThat(onJavaFxThread(Navigator::showMain).lookup(".top-bar")).isNotNull();
+    void mainViewLoadsWithTheEntriesScreenOpen() throws Exception {
+        Parent main = onJavaFxThread(Navigator::showMain);
+
+        assertThat(main.lookup(".top-bar")).isNotNull();
+        assertThat(main.lookup("#table")).isNotNull();
     }
 }
