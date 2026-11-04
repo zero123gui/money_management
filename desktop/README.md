@@ -6,7 +6,7 @@ Cliente desktop do Controle Financeiro Familiar.
 - **Sistemas**: Windows no MVP; macOS no futuro. Exige internet.
 - **Responsabilidade**: interface com o usuário. Consome a API do `backend` e exibe apenas o que ela devolve; não acessa o banco diretamente.
 
-**Status:** login, cadastro e logout prontos. As demais telas estão listadas em [`../docs/PROGRESSO.md`](../docs/PROGRESSO.md).
+**Status:** login, cadastro, logout e listagem de lançamentos prontos. As demais telas estão listadas em [`../docs/PROGRESSO.md`](../docs/PROGRESSO.md).
 
 ## Como rodar
 
@@ -31,6 +31,7 @@ Não precisam da API nem do Docker: o cliente HTTP é testado contra um servidor
 Pacote base `br.com.financeiro.desktop`:
 
 - `api`: chamadas HTTP, DTOs e erros da API;
+- `format`: moeda e datas no formato brasileiro;
 - `session`: token do usuário logado, só na memória;
 - `controller`: um controller por tela, a troca de telas (`Navigator`) e as chamadas em segundo plano (`ApiTasks`).
 

@@ -5,15 +5,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
+import br.com.financeiro.desktop.api.dto.CategoriaResponse;
+import br.com.financeiro.desktop.api.dto.LancamentoResponse;
+import br.com.financeiro.desktop.api.dto.PageResponse;
+import br.com.financeiro.desktop.api.dto.Tipo;
 import br.com.financeiro.desktop.api.dto.LoginRequest;
 import br.com.financeiro.desktop.api.dto.TokenResponse;
 import br.com.financeiro.desktop.api.dto.UsuarioResponse;
 import br.com.financeiro.desktop.session.Session;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,6 +39,7 @@ class ApiClientTest {
 
     private final Session session = new Session();
     private final AtomicReference<String> receivedMethod = new AtomicReference<>();
+    private final AtomicReference<String> receivedQuery = new AtomicReference<>();
     private final AtomicReference<String> receivedBody = new AtomicReference<>();
     private final AtomicReference<String> receivedAuthorization = new AtomicReference<>();
     private final AtomicInteger requestCount = new AtomicInteger();
@@ -55,6 +63,7 @@ class ApiClientTest {
         server.createContext("/api/v1" + path, exchange -> {
             requestCount.incrementAndGet();
             receivedMethod.set(exchange.getRequestMethod());
+            receivedQuery.set(exchange.getRequestURI().getQuery());
             receivedBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             receivedAuthorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
@@ -179,6 +188,70 @@ class ApiClientTest {
 
         assertThatThrownBy(client::currentUser).isInstanceOf(SessionExpiredException.class);
         assertThat(requestCount).hasValue(0);
+    }
+
+    private static final String ENTRIES_PAGE_JSON = """
+            {"conteudo":[{"id":42,"tipo":"DESPESA","valor":9999999999999.99,"data":"2026-10-28",
+              "descricao":null,"categoria":{"id":7,"nome":"Moradia"},
+              "criadoEm":"2026-10-28T14:30:00Z","atualizadoEm":"2026-10-28T14:30:00Z"}],
+             "pagina":1,"tamanho":50,"totalElementos":51,"totalPaginas":2}""";
+
+    @Test
+    void listsEntriesKeepingTheExactAmount() {
+        session.open("meu-token");
+        respondWith("/lancamentos", 200, "application/json", ENTRIES_PAGE_JSON);
+
+        PageResponse<LancamentoResponse> page =
+                client.listLancamentos(new LancamentoFilter(null, null, null, null), 1, 50);
+
+        LancamentoResponse entry = page.conteudo().getFirst();
+        assertThat(entry.valor()).isEqualByComparingTo(new BigDecimal("9999999999999.99"));
+        assertThat(entry.tipo()).isEqualTo(Tipo.DESPESA);
+        assertThat(entry.data()).isEqualTo(LocalDate.of(2026, 10, 28));
+        assertThat(entry.descricao()).isNull();
+        assertThat(entry.categoria().nome()).isEqualTo("Moradia");
+        assertThat(page.pagina()).isEqualTo(1);
+        assertThat(page.totalElementos()).isEqualTo(51);
+        assertThat(page.totalPaginas()).isEqualTo(2);
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+    }
+
+    @Test
+    void sendsOnlyTheFiltersThatWereChosen() {
+        session.open("meu-token");
+        respondWith("/lancamentos", 200, "application/json", ENTRIES_PAGE_JSON);
+
+        client.listLancamentos(new LancamentoFilter(null, null, null, null), 0, 50);
+        assertThat(receivedQuery.get()).isEqualTo("pagina=0&tamanho=50");
+
+        client.listLancamentos(new LancamentoFilter(
+                LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), Tipo.RECEITA, 7L), 2, 20);
+        assertThat(receivedQuery.get())
+                .isEqualTo("inicio=2026-10-01&fim=2026-10-31&tipo=RECEITA&categoriaId=7&pagina=2&tamanho=20");
+    }
+
+    @Test
+    void listingEntriesWithARejectedTokenMeansExpiredSession() {
+        session.open("token-vencido");
+        respondWithProblem("/lancamentos", 401, "Token inválido ou expirado.");
+
+        assertThatThrownBy(() -> client.listLancamentos(new LancamentoFilter(null, null, null, null), 0, 50))
+                .isInstanceOf(SessionExpiredException.class);
+    }
+
+    @Test
+    void listsCategoriesIncludingInactiveOnes() {
+        session.open("meu-token");
+        respondWith("/categorias", 200, "application/json", """
+                [{"id":3,"nome":"Moradia","tipo":"DESPESA","padrao":true,"ativa":true},
+                 {"id":9,"nome":"Antiga","tipo":"RECEITA","padrao":false,"ativa":false}]""");
+
+        List<CategoriaResponse> categories = client.listCategorias();
+
+        assertThat(receivedQuery.get()).isEqualTo("incluirInativas=true");
+        assertThat(categories).containsExactly(
+                new CategoriaResponse(3L, "Moradia", Tipo.DESPESA, true, true),
+                new CategoriaResponse(9L, "Antiga", Tipo.RECEITA, false, false));
     }
 
     @Test

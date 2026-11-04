@@ -1,6 +1,9 @@
 package br.com.financeiro.desktop.api;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
+import br.com.financeiro.desktop.api.dto.CategoriaResponse;
+import br.com.financeiro.desktop.api.dto.LancamentoResponse;
+import br.com.financeiro.desktop.api.dto.PageResponse;
 import br.com.financeiro.desktop.api.dto.LoginRequest;
 import br.com.financeiro.desktop.api.dto.ProblemResponse;
 import br.com.financeiro.desktop.api.dto.TokenResponse;
@@ -12,9 +15,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -80,7 +85,55 @@ public class ApiClient {
      */
     public UsuarioResponse currentUser() {
         HttpRequest.Builder request = request("/usuarios/me").GET();
-        return sendAuthenticated(request, UsuarioResponse.class);
+        return sendAuthenticated(request, typeOf(UsuarioResponse.class));
+    }
+
+    /**
+     * Lista as categorias padrão e as do usuário, inclusive as desativadas (RF-14, RF-15).
+     *
+     * @return categorias, ordenadas por nome
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public List<CategoriaResponse> listCategorias() {
+        JavaType type = json.getTypeFactory().constructCollectionType(List.class, CategoriaResponse.class);
+        return sendAuthenticated(request("/categorias?incluirInativas=true").GET(), type);
+    }
+
+    /**
+     * Lista os lançamentos ativos do usuário (RF-10).
+     *
+     * @param filter  filtros da consulta
+     * @param page    número da página, começando em 0
+     * @param perPage quantidade de itens por página
+     * @return página de lançamentos, do mais recente para o mais antigo
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public PageResponse<LancamentoResponse> listLancamentos(LancamentoFilter filter, int page, int perPage) {
+        List<String> query = new ArrayList<>();
+        // Datas, enums e números não têm caracteres que precisem de codificação na URL.
+        if (filter.inicio() != null) {
+            query.add("inicio=" + filter.inicio());
+        }
+        if (filter.fim() != null) {
+            query.add("fim=" + filter.fim());
+        }
+        if (filter.tipo() != null) {
+            query.add("tipo=" + filter.tipo());
+        }
+        if (filter.categoriaId() != null) {
+            query.add("categoriaId=" + filter.categoriaId());
+        }
+        query.add("pagina=" + page);
+        query.add("tamanho=" + perPage);
+
+        JavaType type = json.getTypeFactory().constructParametricType(PageResponse.class, LancamentoResponse.class);
+        return sendAuthenticated(request("/lancamentos?" + String.join("&", query)).GET(), type);
+    }
+
+    private JavaType typeOf(Class<?> type) {
+        return json.getTypeFactory().constructType(type);
     }
 
     private HttpRequest.Builder request(String path) {
@@ -95,7 +148,7 @@ public class ApiClient {
                 .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body)));
     }
 
-    private <T> T sendAuthenticated(HttpRequest.Builder request, Class<T> responseType) {
+    private <T> T sendAuthenticated(HttpRequest.Builder request, JavaType responseType) {
         String token = session.token();
         if (token == null) {
             throw new SessionExpiredException();
@@ -113,6 +166,10 @@ public class ApiClient {
     }
 
     private <T> T send(HttpRequest.Builder request, Class<T> responseType) {
+        return send(request, typeOf(responseType));
+    }
+
+    private <T> T send(HttpRequest.Builder request, JavaType responseType) {
         HttpResponse<String> response = execute(request.build());
         if (response.statusCode() / 100 != 2) {
             throw toException(response);
