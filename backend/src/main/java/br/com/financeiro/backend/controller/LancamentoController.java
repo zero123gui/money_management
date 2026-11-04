@@ -6,6 +6,7 @@ import br.com.financeiro.backend.dto.LancamentoResponse;
 import br.com.financeiro.backend.dto.PaginaResponse;
 import br.com.financeiro.backend.entity.Tipo;
 import br.com.financeiro.backend.service.LancamentoService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
@@ -53,12 +54,13 @@ public class LancamentoController {
      * @return a página de lançamentos, do mais recente para o mais antigo
      */
     @GetMapping
+    @PaginationParameters
     public PaginaResponse<LancamentoResponse> list(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
             @RequestParam(required = false) Tipo tipo,
             @RequestParam(required = false) Long categoriaId,
-            Pageable pageable) {
+            @Parameter(hidden = true) Pageable pageable) {
         return PaginaResponse.from(lancamentoService.listActive(inicio, fim, tipo, categoriaId, pageable),
                 LancamentoResponse::from);
     }
@@ -70,7 +72,8 @@ public class LancamentoController {
      * @return a página de lançamentos, do excluído mais recentemente para o mais antigo
      */
     @GetMapping("/excluidos")
-    public PaginaResponse<LancamentoExcluidoResponse> listDeleted(Pageable pageable) {
+    @PaginationParameters
+    public PaginaResponse<LancamentoExcluidoResponse> listDeleted(@Parameter(hidden = true) Pageable pageable) {
         return PaginaResponse.from(lancamentoService.listDeleted(pageable), LancamentoExcluidoResponse::from);
     }
 
