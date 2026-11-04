@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
+import br.com.financeiro.desktop.api.dto.AlterarSenhaRequest;
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaCreateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
@@ -474,6 +475,46 @@ class ApiClientTest {
         assertThatThrownBy(() -> client.restoreLancamento(42L))
                 .isInstanceOf(ApiException.class)
                 .hasMessage("Lançamento não encontrado.");
+    }
+
+    @Test
+    void changesPasswordInTheContractFormat() {
+        session.open("meu-token");
+        respondWith("/usuarios/me/senha", 204, "application/json", "");
+
+        client.changePassword(new AlterarSenhaRequest("senha-antiga", "senha-nova"));
+
+        assertThat(receivedMethod.get()).isEqualTo("PUT");
+        assertThat(receivedBody.get()).isEqualTo("""
+                {"senhaAtual":"senha-antiga","novaSenha":"senha-nova"}""");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+        assertThat(session.token()).isEqualTo("meu-token");
+    }
+
+    @Test
+    void wrongCurrentPasswordIsAFieldErrorNotAnExpiredSession() {
+        session.open("meu-token");
+        respondWith("/usuarios/me/senha", 400, "application/problem+json", """
+                {"title":"Dados inválidos","status":400,"detail":"Um ou mais campos estão inválidos.",
+                 "erros":[{"campo":"senhaAtual","mensagem":"está incorreta"}]}""");
+
+        ApiException failure = catchThrowableOfType(ApiException.class,
+                () -> client.changePassword(new AlterarSenhaRequest("errada", "senha-nova")));
+
+        assertThat(failure).isNotInstanceOf(SessionExpiredException.class);
+        assertThat(failure.describe(Map.of("senhaAtual", "Senha atual"))).isEqualTo("Senha atual: está incorreta");
+    }
+
+    @Test
+    void deletesOwnAccountAcceptingAnEmptyResponse() {
+        session.open("meu-token");
+        respondWith("/usuarios/me", 204, "application/json", "");
+
+        client.deleteAccount();
+
+        assertThat(receivedMethod.get()).isEqualTo("DELETE");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/usuarios/me");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
     }
 
     @Test

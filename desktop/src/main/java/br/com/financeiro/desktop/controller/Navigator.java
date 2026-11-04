@@ -57,6 +57,12 @@ public class Navigator {
         load("main.fxml");
     }
 
+    /** Encerra a sessão de uma conta que acabou de ser excluída e avisa no login. */
+    public void onAccountDeleted() {
+        session.clear();
+        showLoginWithNotice("Sua conta e todos os seus dados foram excluídos.");
+    }
+
     /** Encerra a sessão e volta para o login (RF-03). */
     public void logout() {
         session.clear();
@@ -189,6 +195,9 @@ public class Navigator {
         }
         if (type == ResumoController.class) {
             return new ResumoController(api, tasks);
+        }
+        if (type == ContaController.class) {
+            return new ContaController(api, tasks, this);
         }
         if (type == ExcluidosController.class) {
             return new ExcluidosController(api, tasks);

@@ -6,7 +6,7 @@ Cliente desktop do Controle Financeiro Familiar.
 - **Sistemas**: Windows no MVP; macOS no futuro. Exige internet.
 - **Responsabilidade**: interface com o usuário. Consome a API do `backend` e exibe apenas o que ela devolve; não acessa o banco diretamente.
 
-**Status:** login, cadastro, logout, resumo, lançamentos (listar, criar, editar, excluir e restaurar) e categorias prontos. As demais telas estão listadas em [`../docs/PROGRESSO.md`](../docs/PROGRESSO.md).
+**Status:** todas as telas do MVP estão prontas: login, cadastro, resumo, lançamentos, categorias, excluídos e conta. Ainda não há instalador; veja [`../docs/PROGRESSO.md`](../docs/PROGRESSO.md).
 
 ## Como rodar
 

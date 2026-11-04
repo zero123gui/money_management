@@ -100,6 +100,8 @@ Decidido em 2026-11-04, com a proposta aprovada pelo usuário.
 - **Nas categorias padrão, os botões de alteração ficam desligados**, só para evitar uma tentativa inútil. Quem proíbe continua sendo a API, com `403`.
 - **Data e hora aparecem no fuso do computador**, convertidas na tela a partir do UTC da API, decidido em 2026-11-04. A API e o banco continuam em UTC. Motivo: cada computador mostra o próprio horário, sem configuração, e o servidor na nuvem pode estar em outro fuso.
 - **Restaurar lançamento não pede confirmação.** Motivo: a ação não perde nada, e o lançamento pode ser excluído de novo.
+- **Excluir a conta exige digitar o e-mail**, e o botão só é liberado com o texto certo. Motivo: é a única ação do aplicativo sem volta. A API não pede essa confirmação; ela só evita um engano na tela.
+- **Trocar a senha mantém a sessão aberta.** Motivo: o token continua válido até expirar, como já diz `docs/API.md`.
 - **Resumo sem gráfico no MVP**: uma tabela já atende o RF-17.
 - **Testes**: cliente HTTP contra um servidor local falso e carregamento de cada FXML. As telas são conferidas à mão. Motivo: testes automatizados de tela costumam ser frágeis, e as regras importantes já estão testadas no backend.
 
@@ -261,9 +263,9 @@ Formato: `tipo/descricao-curta-em-kebab-case`
 
 ## Próximos passos
 
-1. Desktop: concluir as telas do MVP.
-2. Backend: limitar tentativas de login e fazer a revisão de segurança.
-3. Escolher o provedor de nuvem e publicar a API e o banco.
+1. Backend: limitar tentativas de login e fazer a revisão de segurança.
+2. Escolher o provedor de nuvem e publicar a API e o banco.
+3. Desktop: gerar um instalador para o Windows.
 4. Depois do MVP: grupo familiar, com a regra de compartilhamento.
 
 O detalhamento e o status ficam em `docs/PROGRESSO.md`.

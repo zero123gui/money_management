@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
@@ -76,6 +77,18 @@ class ViewsLoadTest {
         });
 
         assertThat(form.get(10, TimeUnit.SECONDS).lookup("#saveButton")).isNotNull();
+    }
+
+    @Test
+    void accountViewLoads() throws Exception {
+        CompletableFuture<Parent> view = new CompletableFuture<>();
+        onJavaFxThread(navigator -> {
+            navigator.showLogin();
+            view.complete(navigator.loadContent("conta.fxml"));
+        });
+
+        // O conteúdo de um ScrollPane só vira filho dele quando a tela é desenhada.
+        assertThat(((ScrollPane) view.get(10, TimeUnit.SECONDS)).getContent().lookup("#deleteAccountButton")).isNotNull();
     }
 
     @Test
