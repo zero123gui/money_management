@@ -5,6 +5,7 @@ import br.com.financeiro.desktop.api.dto.CategoriaCreateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
 import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
 import br.com.financeiro.desktop.api.dto.CategoriaUpdateRequest;
+import br.com.financeiro.desktop.api.dto.LancamentoExcluidoResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
@@ -247,6 +248,36 @@ public class ApiClient {
                 .header("Content-Type", "application/json")
                 .PUT(jsonBody(request));
         return sendAuthenticated(builder, typeOf(CategoriaResponse.class));
+    }
+
+    /**
+     * Lista os lançamentos excluídos do usuário (RF-24).
+     *
+     * @param page    número da página, começando em 0
+     * @param perPage quantidade de itens por página
+     * @return página de lançamentos, do excluído mais recentemente para o mais antigo
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public PageResponse<LancamentoExcluidoResponse> listLancamentosExcluidos(int page, int perPage) {
+        JavaType type = json.getTypeFactory()
+                .constructParametricType(PageResponse.class, LancamentoExcluidoResponse.class);
+        String query = "pagina=" + page + "&tamanho=" + perPage;
+        return sendAuthenticated(request("/lancamentos/excluidos?" + query).GET(), type);
+    }
+
+    /**
+     * Restaura um lançamento excluído (RF-24).
+     *
+     * @param id identificador do lançamento
+     * @return lançamento restaurado
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public LancamentoResponse restoreLancamento(long id) {
+        HttpRequest.Builder builder = request("/lancamentos/" + id + "/restaurar")
+                .POST(HttpRequest.BodyPublishers.noBody());
+        return sendAuthenticated(builder, typeOf(LancamentoResponse.class));
     }
 
     private HttpRequest.BodyPublisher jsonBody(Object body) {

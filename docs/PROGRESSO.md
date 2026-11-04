@@ -105,13 +105,16 @@
   - [x] PR do resumo (#13) mergeado na `main`.
   - [x] Tela de Categorias: lista padrão e próprias; cria, renomeia, desativa e reativa as próprias (RF-14, RF-15).
   - [x] Novos casos em `ApiClientTest` e `ViewsLoadTest`.
+- [x] Sessão de excluídos do desktop (2026-11-04):
+  - [x] PR de categorias (#14) mergeado na `main`.
+  - [x] Tela de Excluídos: lista paginada e restauração (RF-24), com a hora da exclusão no fuso do computador.
+  - [x] Novos casos em `ApiClientTest`, `FormatsTest` e `ViewsLoadTest`.
 
 ## Próxima sessão
 
 Ordem sugerida para o desktop:
 
-1. [ ] Excluídos: lista e restauração (RF-24).
-2. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
+1. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
 
 ## Backlog (depois)
 

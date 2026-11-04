@@ -190,6 +190,9 @@ public class Navigator {
         if (type == ResumoController.class) {
             return new ResumoController(api, tasks);
         }
+        if (type == ExcluidosController.class) {
+            return new ExcluidosController(api, tasks);
+        }
         if (type == CategoriasController.class) {
             return new CategoriasController(api, tasks, this);
         }

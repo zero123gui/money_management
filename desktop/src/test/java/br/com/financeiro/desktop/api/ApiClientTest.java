@@ -10,6 +10,7 @@ import br.com.financeiro.desktop.api.dto.CategoriaResponse;
 import br.com.financeiro.desktop.api.dto.CategoriaUpdateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
 import br.com.financeiro.desktop.api.dto.SaldoResponse;
+import br.com.financeiro.desktop.api.dto.LancamentoExcluidoResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
@@ -431,6 +432,48 @@ class ApiClientTest {
 
         assertThat(failure).isNotInstanceOf(SessionExpiredException.class);
         assertThat(failure.getStatus()).isEqualTo(403);
+    }
+
+    @Test
+    void listsDeletedEntriesWithTheDeletionTime() {
+        session.open("meu-token");
+        respondWith("/lancamentos/excluidos", 200, "application/json", """
+                {"conteudo":[{"id":42,"tipo":"DESPESA","valor":150.75,"data":"2026-10-28","descricao":"Compra",
+                  "categoria":{"id":7,"nome":"Moradia"},"criadoEm":"2026-10-28T14:30:00Z",
+                  "atualizadoEm":"2026-10-28T14:30:00Z","excluidoEm":"2026-10-29T09:00:00Z"}],
+                 "pagina":0,"tamanho":50,"totalElementos":1,"totalPaginas":1}""");
+
+        PageResponse<LancamentoExcluidoResponse> page = client.listLancamentosExcluidos(0, 50);
+
+        assertThat(receivedQuery.get()).isEqualTo("pagina=0&tamanho=50");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+        LancamentoExcluidoResponse entry = page.conteudo().getFirst();
+        assertThat(entry.excluidoEm()).isEqualTo(Instant.parse("2026-10-29T09:00:00Z"));
+        assertThat(entry.valor()).isEqualByComparingTo("150.75");
+        assertThat(entry.categoria().nome()).isEqualTo("Moradia");
+    }
+
+    @Test
+    void restoresEntryByItsId() {
+        session.open("meu-token");
+        respondWith("/lancamentos/42/restaurar", 200, "application/json", ENTRY_JSON);
+
+        LancamentoResponse restored = client.restoreLancamento(42L);
+
+        assertThat(receivedMethod.get()).isEqualTo("POST");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/lancamentos/42/restaurar");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+        assertThat(restored.id()).isEqualTo(42L);
+    }
+
+    @Test
+    void restoringAnEntryThatIsNotDeletedReportsTheApiMessage() {
+        session.open("meu-token");
+        respondWithProblem("/lancamentos/42/restaurar", 404, "Lançamento não encontrado.");
+
+        assertThatThrownBy(() -> client.restoreLancamento(42L))
+                .isInstanceOf(ApiException.class)
+                .hasMessage("Lançamento não encontrado.");
     }
 
     @Test

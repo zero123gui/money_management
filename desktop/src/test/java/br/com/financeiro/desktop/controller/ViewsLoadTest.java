@@ -79,6 +79,17 @@ class ViewsLoadTest {
     }
 
     @Test
+    void deletedEntriesViewLoads() throws Exception {
+        CompletableFuture<Parent> view = new CompletableFuture<>();
+        onJavaFxThread(navigator -> {
+            navigator.showLogin();
+            view.complete(navigator.loadContent("excluidos.fxml"));
+        });
+
+        assertThat(view.get(10, TimeUnit.SECONDS).lookup("#restoreButton")).isNotNull();
+    }
+
+    @Test
     void categoriesViewAndFormLoad() throws Exception {
         CompletableFuture<Parent> view = new CompletableFuture<>();
         CompletableFuture<Parent> form = new CompletableFuture<>();

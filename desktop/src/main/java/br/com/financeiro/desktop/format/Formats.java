@@ -2,7 +2,9 @@ package br.com.financeiro.desktop.format;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -18,6 +20,7 @@ public final class Formats {
 
     private static final Locale PT_BR = Locale.of("pt", "BR");
     private static final DateTimeFormatter DATE_OUTPUT = DateTimeFormatter.ofPattern("dd/MM/uuuu");
+    private static final DateTimeFormatter DATE_TIME_OUTPUT = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
     // STRICT recusa datas como 31/02, que o modo padrão trocaria pelo último dia do mês.
     private static final DateTimeFormatter DATE_INPUT =
             DateTimeFormatter.ofPattern("d/M/uuuu").withResolverStyle(ResolverStyle.STRICT);
@@ -75,6 +78,27 @@ public final class Formats {
      */
     public static String date(LocalDate value) {
         return DATE_OUTPUT.format(value);
+    }
+
+    /**
+     * Formata uma data e hora da API, que vem em UTC, no fuso deste computador.
+     *
+     * @param value data e hora
+     * @return texto como {@code 04/11/2026 13:30}
+     */
+    public static String dateTime(Instant value) {
+        return dateTime(value, ZoneId.systemDefault());
+    }
+
+    /**
+     * Formata uma data e hora em um fuso específico.
+     *
+     * @param value data e hora
+     * @param zone  fuso de exibição
+     * @return texto como {@code 04/11/2026 13:30}
+     */
+    public static String dateTime(Instant value, ZoneId zone) {
+        return DATE_TIME_OUTPUT.format(value.atZone(zone));
     }
 
     /**

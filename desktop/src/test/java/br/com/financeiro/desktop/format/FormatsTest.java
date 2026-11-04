@@ -3,7 +3,9 @@ package br.com.financeiro.desktop.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import javafx.util.StringConverter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -63,6 +65,20 @@ class FormatsTest {
     @ValueSource(strings = {"10.50", "1,234", "1.23,45", "12.34.567", "abc", "-10", "1 000", "R$ 10", ",50", "10,"})
     void refusesAmountsThatCouldBeMisread(String text) {
         assertThat(Formats.parseAmount(text)).isNull();
+    }
+
+    @Test
+    void showsUtcTimeInTheLocalZone() {
+        ZoneId brasilia = ZoneId.of("America/Sao_Paulo");
+
+        assertThat(Formats.dateTime(Instant.parse("2026-11-04T16:30:49Z"), brasilia)).isEqualTo("04/11/2026 13:30");
+    }
+
+    @Test
+    void localZoneCanFallOnThePreviousDay() {
+        ZoneId brasilia = ZoneId.of("America/Sao_Paulo");
+
+        assertThat(Formats.dateTime(Instant.parse("2026-11-05T01:00:00Z"), brasilia)).isEqualTo("04/11/2026 22:00");
     }
 
     @Test

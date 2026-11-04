@@ -4,7 +4,7 @@ Aplicação desktop para a família registrar e acompanhar receitas e despesas, 
 
 ## Status
 
-🟡 **Em desenvolvimento.** Backend do MVP pronto; desktop com login, cadastro, logout, resumo, lançamentos (listar, criar, editar e excluir) e categorias.
+🟡 **Em desenvolvimento.** Backend do MVP pronto; desktop com login, cadastro, logout, resumo, lançamentos (listar, criar, editar, excluir e restaurar) e categorias.
 
 - [x] Decisões de arquitetura e convenções do projeto
 - [x] Estrutura do monorepo (`backend/`, `desktop/`)

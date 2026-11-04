@@ -32,6 +32,8 @@
                           userData="lancamentos.fxml" maxWidth="Infinity" styleClass="menu-item"/>
             <ToggleButton fx:id="categoriasItem" text="Categorias" toggleGroup="$menu"
                           userData="categorias.fxml" maxWidth="Infinity" styleClass="menu-item"/>
+            <ToggleButton fx:id="excluidosItem" text="Excluídos" toggleGroup="$menu"
+                          userData="excluidos.fxml" maxWidth="Infinity" styleClass="menu-item"/>
         </VBox>
     </left>
     <center>

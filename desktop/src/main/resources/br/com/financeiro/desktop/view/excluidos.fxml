@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.financeiro.desktop.controller.ExcluidosController"
+      styleClass="content" spacing="12">
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <Label text="Excluídos" styleClass="title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="restoreButton" text="Restaurar" onAction="#onRestore" styleClass="primary-button"/>
+    </HBox>
+
+    <Label text="Lançamentos excluídos não contam no saldo nem nos resumos até serem restaurados." wrapText="true" minHeight="-Infinity" styleClass="subtitle"/>
+
+    <Label fx:id="noticeLabel" visible="false" wrapText="true" minHeight="-Infinity" styleClass="form-notice"/>
+    <Label fx:id="errorLabel" visible="false" wrapText="true" minHeight="-Infinity" styleClass="form-error"/>
+
+    <TableView fx:id="table" VBox.vgrow="ALWAYS">
+        <placeholder>
+            <Label fx:id="placeholderLabel" styleClass="subtitle"/>
+        </placeholder>
+        <columns>
+            <TableColumn fx:id="deletedAtColumn" text="Excluído em" sortable="false" reorderable="false" prefWidth="130"/>
+            <TableColumn fx:id="dateColumn" text="Data" sortable="false" reorderable="false" prefWidth="85"/>
+            <TableColumn fx:id="descriptionColumn" text="Descrição" sortable="false" reorderable="false" prefWidth="190"/>
+            <TableColumn fx:id="categoryColumn" text="Categoria" sortable="false" reorderable="false" prefWidth="110"/>
+            <TableColumn fx:id="typeColumn" text="Tipo" sortable="false" reorderable="false" prefWidth="70"/>
+            <TableColumn fx:id="amountColumn" text="Valor" sortable="false" reorderable="false" prefWidth="110" styleClass="amount-column"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <Label fx:id="pageLabel" styleClass="subtitle"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="previousButton" text="Anterior" disable="true" onAction="#onPreviousPage"/>
+        <Button fx:id="nextButton" text="Próxima" disable="true" onAction="#onNextPage"/>
+    </HBox>
+</VBox>
