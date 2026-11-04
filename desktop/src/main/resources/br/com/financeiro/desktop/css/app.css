@@ -83,6 +83,24 @@
     -fx-font-weight: bold;
 }
 
+.summary-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 8;
+    -fx-padding: 14 16;
+}
+
+.summary-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
 .content {
     -fx-padding: 20;
 }

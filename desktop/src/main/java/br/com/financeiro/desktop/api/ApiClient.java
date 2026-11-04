@@ -2,11 +2,13 @@ package br.com.financeiro.desktop.api;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
+import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
 import br.com.financeiro.desktop.api.dto.LoginRequest;
 import br.com.financeiro.desktop.api.dto.ProblemResponse;
+import br.com.financeiro.desktop.api.dto.SaldoResponse;
 import br.com.financeiro.desktop.api.dto.TokenResponse;
 import br.com.financeiro.desktop.api.dto.UsuarioResponse;
 import br.com.financeiro.desktop.session.Session;
@@ -16,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import tools.jackson.core.JacksonException;
@@ -173,6 +176,44 @@ public class ApiClient {
      */
     public void deleteLancamento(long id) {
         sendAuthenticated(request("/lancamentos/" + id).DELETE(), typeOf(Void.class));
+    }
+
+    /**
+     * Busca o saldo de um período (RF-16).
+     *
+     * @param start primeira data; sem ela, a API responde com o campo faltando
+     * @param end   última data; sem ela, a API responde com o campo faltando
+     * @return totais e saldo do período
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public SaldoResponse getSaldo(LocalDate start, LocalDate end) {
+        return sendAuthenticated(request("/relatorios/saldo?" + periodQuery(start, end)).GET(), typeOf(SaldoResponse.class));
+    }
+
+    /**
+     * Busca o total por categoria de um período (RF-17).
+     *
+     * @param start primeira data; sem ela, a API responde com o campo faltando
+     * @param end   última data; sem ela, a API responde com o campo faltando
+     * @return totais, do maior para o menor
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public List<CategoriaTotalResponse> listCategoriaTotals(LocalDate start, LocalDate end) {
+        JavaType type = json.getTypeFactory().constructCollectionType(List.class, CategoriaTotalResponse.class);
+        return sendAuthenticated(request("/relatorios/categorias?" + periodQuery(start, end)).GET(), type);
+    }
+
+    private static String periodQuery(LocalDate start, LocalDate end) {
+        List<String> query = new ArrayList<>();
+        if (start != null) {
+            query.add("inicio=" + start);
+        }
+        if (end != null) {
+            query.add("fim=" + end);
+        }
+        return String.join("&", query);
     }
 
     private HttpRequest.BodyPublisher jsonBody(Object body) {

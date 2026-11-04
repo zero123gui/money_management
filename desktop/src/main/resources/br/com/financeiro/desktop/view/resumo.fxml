@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.financeiro.desktop.controller.ResumoController"
+      styleClass="content" spacing="12">
+    <Label text="Resumo" styleClass="title"/>
+
+    <FlowPane hgap="12" vgap="8" rowValignment="BOTTOM">
+        <VBox spacing="4">
+            <Label text="Início" labelFor="$startPicker" styleClass="field-label"/>
+            <DatePicker fx:id="startPicker" prefWidth="140" promptText="dd/mm/aaaa"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="Fim" labelFor="$endPicker" styleClass="field-label"/>
+            <DatePicker fx:id="endPicker" prefWidth="140" promptText="dd/mm/aaaa"/>
+        </VBox>
+        <Button fx:id="updateButton" text="Atualizar" defaultButton="true" onAction="#onUpdate"/>
+    </FlowPane>
+
+    <Label fx:id="errorLabel" visible="false" wrapText="true" minHeight="-Infinity" styleClass="form-error"/>
+
+    <HBox spacing="12">
+        <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" prefWidth="100" maxWidth="Infinity" spacing="4">
+            <Label text="Receitas" styleClass="subtitle"/>
+            <Label fx:id="revenueLabel" text="—" styleClass="summary-value,amount-revenue"/>
+        </VBox>
+        <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" prefWidth="100" maxWidth="Infinity" spacing="4">
+            <Label text="Despesas" styleClass="subtitle"/>
+            <Label fx:id="expenseLabel" text="—" styleClass="summary-value,amount-expense"/>
+        </VBox>
+        <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" prefWidth="100" maxWidth="Infinity" spacing="4">
+            <Label text="Saldo" styleClass="subtitle"/>
+            <Label fx:id="balanceLabel" text="—" styleClass="summary-value"/>
+        </VBox>
+    </HBox>
+
+    <Label text="Total por categoria" styleClass="section-title"/>
+    <TableView fx:id="table" VBox.vgrow="ALWAYS">
+        <placeholder>
+            <Label fx:id="placeholderLabel" styleClass="subtitle"/>
+        </placeholder>
+        <columns>
+            <TableColumn fx:id="categoryColumn" text="Categoria" sortable="false" reorderable="false" prefWidth="270"/>
+            <TableColumn fx:id="typeColumn" text="Tipo" sortable="false" reorderable="false" prefWidth="110"/>
+            <TableColumn fx:id="countColumn" text="Lançamentos" sortable="false" reorderable="false" prefWidth="110"/>
+            <TableColumn fx:id="totalColumn" text="Total" sortable="false" reorderable="false" prefWidth="170" styleClass="amount-column"/>
+        </columns>
+    </TableView>
+</VBox>

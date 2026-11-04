@@ -25,6 +25,11 @@ class FormatsTest {
     }
 
     @Test
+    void formatsNegativeBalance() {
+        assertThat(withoutSpecialSpace(Formats.currency(new BigDecimal("-1799.50")))).isEqualTo("-R$ 1.799,50");
+    }
+
+    @Test
     void keepsEveryDigitOfLargeValues() {
         // Passar por double perderia os centavos em um valor deste tamanho (RNF-06).
         assertThat(withoutSpecialSpace(Formats.currency(new BigDecimal("9999999999999.99"))))
