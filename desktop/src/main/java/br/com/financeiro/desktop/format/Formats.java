@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import javafx.util.StringConverter;
 
 /**
@@ -21,6 +22,10 @@ public final class Formats {
     private static final DateTimeFormatter DATE_INPUT =
             DateTimeFormatter.ofPattern("d/M/uuuu").withResolverStyle(ResolverStyle.STRICT);
 
+    // Só aceita milhares em grupos de 3 e até 2 decimais depois da vírgula. "10.50" e "1,234"
+    // são recusados em vez de adivinhados, pois lidos errado virariam outro valor.
+    private static final Pattern AMOUNT_INPUT = Pattern.compile("\\d{1,3}(\\.\\d{3})+(,\\d{1,2})?|\\d+(,\\d{1,2})?");
+
     private Formats() {
     }
 
@@ -33,6 +38,33 @@ public final class Formats {
     public static String currency(BigDecimal value) {
         // NumberFormat não é seguro entre threads, por isso não fica em uma constante.
         return NumberFormat.getCurrencyInstance(PT_BR).format(value);
+    }
+
+    /**
+     * Formata um valor para um campo editável, como {@code 1.234,56}.
+     *
+     * @param value valor
+     * @return valor formatado, sem o símbolo da moeda
+     */
+    public static String amount(BigDecimal value) {
+        NumberFormat format = NumberFormat.getNumberInstance(PT_BR);
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+        return format.format(value);
+    }
+
+    /**
+     * Lê um valor digitado no formato brasileiro, como {@code 1.234,56} ou {@code 1234,5}.
+     *
+     * @param text texto digitado
+     * @return valor com 2 casas decimais, ou {@code null} se o formato for inválido
+     */
+    public static BigDecimal parseAmount(String text) {
+        String value = text.strip();
+        if (!AMOUNT_INPUT.matcher(value).matches()) {
+            return null;
+        }
+        return new BigDecimal(value.replace(".", "").replace(',', '.')).setScale(2);
     }
 
     /**

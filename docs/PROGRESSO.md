@@ -91,16 +91,20 @@
   - [x] Menu lateral e tela de lançamentos com filtros por período, tipo e categoria, e paginação (RF-10).
   - [x] Formatos brasileiros de moeda e data (RNF-07).
   - [x] `FormatsTest` e novos casos em `ApiClientTest` e `ViewsLoadTest`.
+- [x] Sessão do formulário de lançamentos (2026-11-04):
+  - [x] PR da listagem (#11) mergeado na `main`.
+  - [x] Criar, editar e excluir lançamentos pelo desktop (RF-06 a RF-09), com confirmação na exclusão.
+  - [x] Sessão expirada fecha o formulário aberto e volta para o login.
+  - [x] `LancamentoFilterTest` e novos casos em `ApiClientTest`, `FormatsTest` e `ViewsLoadTest`.
 
 ## Próxima sessão
 
 Ordem sugerida para o desktop:
 
-1. [ ] Formulário de lançamentos: criar, editar e excluir (RF-06 a RF-09).
-2. [ ] Resumo: saldo e totais por categoria, em tabela (RF-16, RF-17).
-3. [ ] Categorias: gestão das categorias próprias (RF-15).
-4. [ ] Excluídos: lista e restauração (RF-24).
-5. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
+1. [ ] Resumo: saldo e totais por categoria, em tabela (RF-16, RF-17).
+2. [ ] Categorias: gestão das categorias próprias (RF-15).
+3. [ ] Excluídos: lista e restauração (RF-24).
+4. [ ] Conta: troca de senha e exclusão da conta (RF-04, RF-05).
 
 ## Backlog (depois)
 

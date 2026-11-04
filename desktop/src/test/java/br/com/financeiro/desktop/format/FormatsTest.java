@@ -32,6 +32,35 @@ class FormatsTest {
     }
 
     @Test
+    void formatsAmountForEditing() {
+        assertThat(Formats.amount(new BigDecimal("1234.5"))).isEqualTo("1.234,50");
+        assertThat(Formats.amount(new BigDecimal("9999999999999.99"))).isEqualTo("9.999.999.999.999,99");
+    }
+
+    @Test
+    void readsTypedAmounts() {
+        assertThat(Formats.parseAmount("1.234,56")).isEqualTo(new BigDecimal("1234.56"));
+        assertThat(Formats.parseAmount("1234,5")).isEqualTo(new BigDecimal("1234.50"));
+        assertThat(Formats.parseAmount(" 10 ")).isEqualTo(new BigDecimal("10.00"));
+        assertThat(Formats.parseAmount("1.234")).isEqualTo(new BigDecimal("1234.00"));
+        assertThat(Formats.parseAmount("1.000.000,01")).isEqualTo(new BigDecimal("1000000.01"));
+        assertThat(Formats.parseAmount("0,00")).isEqualTo(new BigDecimal("0.00"));
+    }
+
+    @Test
+    void amountThatWasFormattedCanBeReadBack() {
+        BigDecimal value = new BigDecimal("9999999999999.99");
+
+        assertThat(Formats.parseAmount(Formats.amount(value))).isEqualTo(value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"10.50", "1,234", "1.23,45", "12.34.567", "abc", "-10", "1 000", "R$ 10", ",50", "10,"})
+    void refusesAmountsThatCouldBeMisread(String text) {
+        assertThat(Formats.parseAmount(text)).isNull();
+    }
+
+    @Test
     void formatsDateAsDayMonthYear() {
         assertThat(Formats.date(LocalDate.of(2026, 3, 5))).isEqualTo("05/03/2026");
         assertThat(converter.toString(LocalDate.of(2026, 3, 5))).isEqualTo("05/03/2026");

@@ -91,6 +91,9 @@ Decidido em 2026-11-04, com a proposta aprovada pelo usuário.
 - **Depois do cadastro, o aplicativo já faz o login.** Se esse login falhar, leva à tela de login em vez de mostrar erro, pois a conta já existe.
 - **A lista de lançamentos abre no mês atual.** O botão Limpar tira todos os filtros, inclusive o período. Motivo: o mês corrente é o caso mais comum, e a API não define um período padrão.
 - **Valor na cor do tipo, sem sinal de menos**: a API sempre devolve valor positivo, e o tipo também aparece em uma coluna própria.
+- **Formulário de lançamento em janela própria**, sobre a principal, para criar e editar. Motivo: a lista e os filtros continuam como estavam ao voltar.
+- **Valor digitado só no formato brasileiro**: `1.234,56`, `1234,5` ou `1234`. Valores como `10.50` e `1,234` são recusados em vez de adivinhados. Motivo: lidos do jeito errado, virariam outro valor sem ninguém perceber. Os demais limites do valor continuam na API.
+- **Exclusão com confirmação**, mesmo sendo reversível. Motivo: o lançamento some da lista e do saldo com um clique, e a tela de excluídos fica em outro lugar.
 - **Resumo sem gráfico no MVP**: uma tabela já atende o RF-17.
 - **Testes**: cliente HTTP contra um servidor local falso e carregamento de cada FXML. As telas são conferidas à mão. Motivo: testes automatizados de tela costumam ser frágeis, e as regras importantes já estão testadas no backend.
 

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
+import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
 import br.com.financeiro.desktop.api.dto.Tipo;
@@ -40,6 +41,7 @@ class ApiClientTest {
     private final Session session = new Session();
     private final AtomicReference<String> receivedMethod = new AtomicReference<>();
     private final AtomicReference<String> receivedQuery = new AtomicReference<>();
+    private final AtomicReference<String> receivedPath = new AtomicReference<>();
     private final AtomicReference<String> receivedBody = new AtomicReference<>();
     private final AtomicReference<String> receivedAuthorization = new AtomicReference<>();
     private final AtomicInteger requestCount = new AtomicInteger();
@@ -64,6 +66,7 @@ class ApiClientTest {
             requestCount.incrementAndGet();
             receivedMethod.set(exchange.getRequestMethod());
             receivedQuery.set(exchange.getRequestURI().getQuery());
+            receivedPath.set(exchange.getRequestURI().getPath());
             receivedBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             receivedAuthorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
@@ -237,6 +240,82 @@ class ApiClientTest {
 
         assertThatThrownBy(() -> client.listLancamentos(new LancamentoFilter(null, null, null, null), 0, 50))
                 .isInstanceOf(SessionExpiredException.class);
+    }
+
+    private static final String ENTRY_JSON = """
+            {"id":42,"tipo":"DESPESA","valor":150.75,"data":"2026-10-28","descricao":"Compra",
+             "categoria":{"id":7,"nome":"Moradia"},
+             "criadoEm":"2026-10-28T14:30:00Z","atualizadoEm":"2026-10-28T14:30:00Z"}""";
+    private static final LancamentoRequest ENTRY_REQUEST = new LancamentoRequest(
+            Tipo.DESPESA, new BigDecimal("1000.00"), LocalDate.of(2026, 10, 28), "Compra", 7L);
+    private static final String ENTRY_REQUEST_JSON = """
+            {"tipo":"DESPESA","valor":1000.00,"data":"2026-10-28","descricao":"Compra","categoriaId":7}""";
+
+    @Test
+    void createsEntryInTheContractFormat() {
+        session.open("meu-token");
+        respondWith("/lancamentos", 201, "application/json", ENTRY_JSON);
+
+        LancamentoResponse created = client.createLancamento(ENTRY_REQUEST);
+
+        assertThat(receivedMethod.get()).isEqualTo("POST");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/lancamentos");
+        assertThat(receivedBody.get()).isEqualTo(ENTRY_REQUEST_JSON);
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+        assertThat(created.id()).isEqualTo(42L);
+    }
+
+    @Test
+    void missingRequiredFieldsAreSentAsNullForTheApiToReport() {
+        session.open("meu-token");
+        respondWith("/lancamentos", 201, "application/json", ENTRY_JSON);
+
+        client.createLancamento(new LancamentoRequest(Tipo.DESPESA, null, null, null, null));
+
+        assertThat(receivedBody.get()).isEqualTo("""
+                {"tipo":"DESPESA","valor":null,"data":null,"descricao":null,"categoriaId":null}""");
+    }
+
+    @Test
+    void updatesEntryByItsId() {
+        session.open("meu-token");
+        respondWith("/lancamentos/42", 200, "application/json", ENTRY_JSON);
+
+        client.updateLancamento(42L, ENTRY_REQUEST);
+
+        assertThat(receivedMethod.get()).isEqualTo("PUT");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/lancamentos/42");
+        assertThat(receivedBody.get()).isEqualTo(ENTRY_REQUEST_JSON);
+    }
+
+    @Test
+    void deletesEntryByItsIdAcceptingAnEmptyResponse() {
+        session.open("meu-token");
+        respondWith("/lancamentos/42", 204, "application/json", "");
+
+        client.deleteLancamento(42L);
+
+        assertThat(receivedMethod.get()).isEqualTo("DELETE");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/lancamentos/42");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+    }
+
+    @Test
+    void deletingAnEntryThatIsGoneReportsTheApiMessage() {
+        session.open("meu-token");
+        respondWithProblem("/lancamentos/42", 404, "Lançamento não encontrado.");
+
+        assertThatThrownBy(() -> client.deleteLancamento(42L))
+                .isInstanceOf(ApiException.class)
+                .hasMessage("Lançamento não encontrado.");
+    }
+
+    @Test
+    void writingEntriesWithARejectedTokenMeansExpiredSession() {
+        session.open("token-vencido");
+        respondWithProblem("/lancamentos", 401, "Token inválido ou expirado.");
+
+        assertThatThrownBy(() -> client.createLancamento(ENTRY_REQUEST)).isInstanceOf(SessionExpiredException.class);
     }
 
     @Test

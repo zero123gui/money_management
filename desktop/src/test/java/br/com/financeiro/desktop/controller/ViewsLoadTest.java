@@ -68,6 +68,17 @@ class ViewsLoadTest {
     }
 
     @Test
+    void entryFormLoads() throws Exception {
+        CompletableFuture<Parent> form = new CompletableFuture<>();
+        onJavaFxThread(navigator -> {
+            navigator.showLogin();
+            form.complete(navigator.loadContent("lancamento-form.fxml"));
+        });
+
+        assertThat(form.get(10, TimeUnit.SECONDS).lookup("#saveButton")).isNotNull();
+    }
+
+    @Test
     void mainViewLoadsWithTheEntriesScreenOpen() throws Exception {
         Parent main = onJavaFxThread(Navigator::showMain);
 

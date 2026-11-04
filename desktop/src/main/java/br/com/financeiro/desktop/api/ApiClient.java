@@ -2,6 +2,7 @@ package br.com.financeiro.desktop.api;
 
 import br.com.financeiro.desktop.api.dto.CadastroRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
+import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
 import br.com.financeiro.desktop.api.dto.PageResponse;
 import br.com.financeiro.desktop.api.dto.LoginRequest;
@@ -132,6 +133,52 @@ public class ApiClient {
         return sendAuthenticated(request("/lancamentos?" + String.join("&", query)).GET(), type);
     }
 
+    /**
+     * Cria um lançamento (RF-06, RF-07).
+     *
+     * @param request dados do lançamento
+     * @return lançamento criado
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public LancamentoResponse createLancamento(LancamentoRequest request) {
+        HttpRequest.Builder builder = request("/lancamentos")
+                .header("Content-Type", "application/json")
+                .POST(jsonBody(request));
+        return sendAuthenticated(builder, typeOf(LancamentoResponse.class));
+    }
+
+    /**
+     * Altera um lançamento (RF-08).
+     *
+     * @param id      identificador do lançamento
+     * @param request novos dados
+     * @return lançamento alterado
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public LancamentoResponse updateLancamento(long id, LancamentoRequest request) {
+        HttpRequest.Builder builder = request("/lancamentos/" + id)
+                .header("Content-Type", "application/json")
+                .PUT(jsonBody(request));
+        return sendAuthenticated(builder, typeOf(LancamentoResponse.class));
+    }
+
+    /**
+     * Exclui um lançamento, de forma lógica (RF-09).
+     *
+     * @param id identificador do lançamento
+     * @throws SessionExpiredException se não houver token ou a API recusá-lo
+     * @throws ApiException            se a API recusar ou não responder
+     */
+    public void deleteLancamento(long id) {
+        sendAuthenticated(request("/lancamentos/" + id).DELETE(), typeOf(Void.class));
+    }
+
+    private HttpRequest.BodyPublisher jsonBody(Object body) {
+        return HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body));
+    }
+
     private JavaType typeOf(Class<?> type) {
         return json.getTypeFactory().constructType(type);
     }
@@ -145,7 +192,7 @@ public class ApiClient {
     private HttpRequest.Builder publicPost(String path, Object body) {
         return request(path)
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body)));
+                .POST(jsonBody(body));
     }
 
     private <T> T sendAuthenticated(HttpRequest.Builder request, JavaType responseType) {
@@ -173,6 +220,10 @@ public class ApiClient {
         HttpResponse<String> response = execute(request.build());
         if (response.statusCode() / 100 != 2) {
             throw toException(response);
+        }
+        // Respostas 204 não têm corpo para ler.
+        if (responseType.hasRawClass(Void.class)) {
+            return null;
         }
         try {
             return json.readValue(response.body(), responseType);
