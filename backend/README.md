@@ -6,7 +6,7 @@ API REST do Controle Financeiro Familiar.
 - **Banco**: PostgreSQL (gerenciado na nuvem em produção).
 - **Responsabilidade**: autenticação, regras de negócio e isolamento dos dados por usuário. Toda consulta filtra pelo usuário autenticado.
 
-**Status:** projeto Spring Boot, migração `V1`, entidades JPA, repositories e autenticação JWT criados. Endpoints prontos: `POST /auth/cadastro`, `POST /auth/login`, `GET` e `DELETE /usuarios/me`, `PUT /usuarios/me/senha` e `GET`, `POST` e `PUT /categorias`.
+**Status:** projeto Spring Boot, migração `V1`, entidades JPA, repositories e autenticação JWT criados. Endpoints prontos: `POST /auth/cadastro`, `POST /auth/login`, `GET` e `DELETE /usuarios/me`, `PUT /usuarios/me/senha`, `GET`, `POST` e `PUT /categorias` e todas as rotas de `/lancamentos`. Faltam os relatórios.
 
 ## Como executar localmente
 

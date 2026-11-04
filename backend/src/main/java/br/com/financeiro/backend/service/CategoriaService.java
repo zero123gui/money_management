@@ -87,9 +87,7 @@ public class CategoriaService {
     @Transactional
     public Categoria update(Long id, AlterarCategoriaRequest request) {
         Long ownerId = authorization.currentUser().getId();
-        Categoria categoria = categorias.findVisibleById(id, ownerId)
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Não encontrado",
-                        "O recurso pedido não existe."));
+        Categoria categoria = categorias.findVisibleById(id, ownerId).orElseThrow(ApiException::notFound);
         authorization.assertCanEdit(categoria);
 
         String name = request.nome().strip();

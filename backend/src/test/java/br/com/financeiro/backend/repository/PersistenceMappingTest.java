@@ -79,7 +79,7 @@ class PersistenceMappingTest {
         flushAndClear();
 
         assertThat(lancamentos.findByIdAndOwnerIdAndDeletedAtIsNull(entry.getId(), bia.getId())).isEmpty();
-        assertThat(lancamentos.findByOwnerIdAndDeletedAtIsNullOrderByDateDescIdDesc(bia.getId(), FIRST_PAGE)).isEmpty();
+        assertThat(lancamentos.findActive(bia.getId(), null, null, null, null, FIRST_PAGE)).isEmpty();
     }
 
     @Test
@@ -90,7 +90,7 @@ class PersistenceMappingTest {
         entry.softDelete();
         flushAndClear();
 
-        assertThat(lancamentos.findByOwnerIdAndDeletedAtIsNullOrderByDateDescIdDesc(ana.getId(), FIRST_PAGE)).isEmpty();
+        assertThat(lancamentos.findActive(ana.getId(), null, null, null, null, FIRST_PAGE)).isEmpty();
         assertThat(lancamentos.findByOwnerIdAndDeletedAtIsNotNullOrderByDeletedAtDesc(ana.getId(), FIRST_PAGE))
                 .hasSize(1);
 
