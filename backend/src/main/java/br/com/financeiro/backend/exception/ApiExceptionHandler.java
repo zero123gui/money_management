@@ -50,6 +50,22 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Responde a um login bloqueado, informando quando tentar de novo.
+     *
+     * @param exception erro com o tempo que falta
+     * @return a resposta 429 com o cabeçalho {@code Retry-After}, em segundos
+     */
+    @ExceptionHandler(TooManyLoginAttemptsException.class)
+    public ResponseEntity<ProblemDetail> handleTooManyLoginAttempts(TooManyLoginAttemptsException exception) {
+        ProblemDetail problem = problem(exception.getStatus(), exception.getTitle(), exception.getMessage());
+        // Arredonda para cima: com 0, o cliente tentaria de novo ainda bloqueado.
+        long seconds = exception.getRetryAfter().plusMillis(999).toSeconds();
+        return ResponseEntity.status(exception.getStatus())
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(seconds))
+                .body(problem);
+    }
+
+    /**
      * Responde a um campo recusado por uma regra de negócio.
      *
      * @param exception campo recusado

@@ -44,6 +44,8 @@ abstract class ApiTestSupport {
         registry.add("DB_PASSWORD", () -> "nao-usada");
         // Fixado para o .env de quem roda os testes não mudar o resultado.
         registry.add("SWAGGER_ENABLED", () -> "false");
+        registry.add("LOGIN_MAX_ATTEMPTS", () -> "5");
+        registry.add("LOGIN_BLOCK_DURATION", () -> "PT15M");
     }
 
     @Autowired

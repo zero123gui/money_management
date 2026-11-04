@@ -114,6 +114,10 @@
   - [x] Tela de Conta: dados do usuário, troca de senha (RF-04) e exclusão da conta com confirmação pelo e-mail (RF-05).
   - [x] Novos casos em `ApiClientTest` e `ViewsLoadTest`.
   - **Todas as telas do MVP estão prontas no desktop, rodando contra a API local.**
+- [x] Sessão do limite de login (2026-11-04):
+  - [x] PR da conta (#16) mergeado na `main`.
+  - [x] Backend: 5 falhas seguidas bloqueiam o e-mail por 15 minutos, com `429` e `Retry-After`.
+  - [x] `LoginAttemptLimiterTest` e novos casos em `AuthApiTest` e no `ApiClientTest` do desktop.
 
 ## Próxima sessão
 
@@ -121,7 +125,6 @@ O plano de telas do desktop terminou. A próxima sessão começa pelos itens do 
 
 ## Backlog (depois)
 
-- [ ] Backend: limitar tentativas de login, antes de publicar na nuvem.
 - [ ] Desktop: gerar um instalador para o Windows, para a família usar sem Maven nem JDK.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
 - [ ] CI (build e testes) e proteção da branch `main`. Conferir o `ViewsLoadTest` em ambiente sem tela: ele deveria ser ignorado, mas isso ainda não foi testado.

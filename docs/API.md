@@ -56,6 +56,7 @@
 | `403`  | Autenticado, mas a ação não é permitida (ex.: alterar categoria padrão).    |
 | `404`  | Recurso não existe ou pertence a outro usuário.                             |
 | `409`  | Conflito com o estado atual (ex.: e-mail já cadastrado).                    |
+| `429`  | Muitas tentativas de login. Cabeçalho `Retry-After` indica os segundos que faltam. |
 | `500`  | Erro inesperado no servidor. Nunca expõe detalhes internos.                 |
 
 ### 1.6 Formato de erro
@@ -152,6 +153,7 @@ Cria um usuário. Requisição:
 ```
 
 - `401` com a mesma mensagem genérica ("E-mail ou senha inválidos"), seja o e-mail inexistente ou a senha errada. Assim a API não revela quais e-mails estão cadastrados.
+- `429` com o cabeçalho `Retry-After` depois de 5 falhas seguidas no mesmo e-mail, por 15 minutos a partir da última falha. Vale também para a senha certa e para e-mails que não existem. Um login certo antes do limite zera a contagem. Tokens já emitidos continuam válidos.
 
 ### 2.2 Usuário
 

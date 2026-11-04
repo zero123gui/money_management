@@ -137,6 +137,18 @@ class ApiClientTest {
     }
 
     @Test
+    void blockedLoginShowsTheMessageOfTheApi() {
+        respondWithProblem("/auth/login", 429, "Muitas tentativas de login. Tente novamente em 15 minutos.");
+
+        ApiException failure = catchThrowableOfType(ApiException.class,
+                () -> client.login(new LoginRequest("ana@exemplo.com", "senha-forte")));
+
+        assertThat(failure).isNotInstanceOf(SessionExpiredException.class);
+        assertThat(failure.getStatus()).isEqualTo(429);
+        assertThat(failure.getMessage()).isEqualTo("Muitas tentativas de login. Tente novamente em 15 minutos.");
+    }
+
+    @Test
     void registerReadsCreatedUser() {
         respondWith("/auth/cadastro", 201, "application/json", USER_JSON);
 
