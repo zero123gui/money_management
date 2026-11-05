@@ -6,6 +6,7 @@ import br.com.financeiro.desktop.api.dto.CategoriaCreateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaResponse;
 import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
 import br.com.financeiro.desktop.api.dto.CategoriaUpdateRequest;
+import br.com.financeiro.desktop.api.dto.ExcluirContaRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoExcluidoResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
@@ -298,12 +299,18 @@ public class ApiClient {
 
     /**
      * Exclui de forma definitiva a conta e todos os dados do usuário (RF-05).
+     * Aqui, um {@code 400} com o campo {@code senha} indica senha errada; a
+     * sessão continua valendo.
      *
+     * @param request senha atual
      * @throws SessionExpiredException se não houver token ou a API recusá-lo
      * @throws ApiException            se a API recusar ou não responder
      */
-    public void deleteAccount() {
-        sendAuthenticated(request("/usuarios/me").DELETE(), typeOf(Void.class));
+    public void deleteAccount(ExcluirContaRequest request) {
+        HttpRequest.Builder builder = request("/usuarios/me")
+                .header("Content-Type", "application/json")
+                .method("DELETE", jsonBody(request));
+        sendAuthenticated(builder, typeOf(Void.class));
     }
 
     private HttpRequest.BodyPublisher jsonBody(Object body) {

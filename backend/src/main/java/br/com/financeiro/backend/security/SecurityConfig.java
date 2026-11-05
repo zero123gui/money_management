@@ -28,7 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * Regras de segurança da API: tudo exige token, exceto cadastro e login.
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({JwtProperties.class, LoginLimitProperties.class})
+@EnableConfigurationProperties({JwtProperties.class, LoginLimitProperties.class, SignupProperties.class})
 public class SecurityConfig {
 
     /**

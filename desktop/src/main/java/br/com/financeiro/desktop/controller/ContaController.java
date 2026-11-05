@@ -3,18 +3,22 @@ package br.com.financeiro.desktop.controller;
 import br.com.financeiro.desktop.api.ApiClient;
 import br.com.financeiro.desktop.api.ApiException;
 import br.com.financeiro.desktop.api.dto.AlterarSenhaRequest;
+import br.com.financeiro.desktop.api.dto.ExcluirContaRequest;
 import br.com.financeiro.desktop.api.dto.UsuarioResponse;
 import br.com.financeiro.desktop.format.Formats;
 import java.util.Map;
+import java.util.Optional;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 /**
  * Dados da conta, troca de senha (RF-04) e exclusão da conta (RF-05).
@@ -110,17 +114,17 @@ public class ContaController {
     @FXML
     private void onDeleteAccount() {
         deleteErrorLabel.setVisible(false);
-        if (confirmDelete()) {
+        askPasswordToDelete().ifPresent(password -> {
             deleteAccountButton.setDisable(true);
             tasks.run(() -> {
-                api.deleteAccount();
+                api.deleteAccount(new ExcluirContaRequest(password));
                 return true;
             }, deleted -> navigator.onAccountDeleted(), failure -> {
                 deleteAccountButton.setDisable(false);
-                deleteErrorLabel.setText(failure.describe(Map.of()));
+                deleteErrorLabel.setText(failure.describe(Map.of("senha", "Senha")));
                 deleteErrorLabel.setVisible(true);
             });
-        }
+        });
     }
 
     private void showUser(UsuarioResponse loaded) {
@@ -143,23 +147,33 @@ public class ContaController {
 
     /**
      * A exclusão da conta é a única ação do aplicativo sem volta. Por isso, em vez
-     * de um clique, exige digitar o e-mail: quem proíbe a exclusão de outra conta
-     * continua sendo a API, e isto só evita um engano.
+     * de um clique, exige digitar o e-mail, que só evita um engano, e a senha, que
+     * quem confere é a API.
+     *
+     * @return a senha digitada, ou vazio se o usuário cancelar
      */
-    private boolean confirmDelete() {
+    private Optional<String> askPasswordToDelete() {
         ButtonType delete = new ButtonType("Excluir minha conta", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancel = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
-        TextInputDialog dialog = new TextInputDialog();
+        TextField emailField = new TextField();
+        PasswordField passwordField = new PasswordField();
+        Dialog<String> dialog = new Dialog<>();
         dialog.initOwner(deleteAccountButton.getScene().getWindow());
         dialog.setTitle("Excluir conta");
         dialog.setHeaderText("Excluir sua conta e todos os seus dados?");
-        dialog.setContentText("Lançamentos e categorias próprias serão apagados de vez.\nDigite "
-                + user.email() + " para confirmar:");
+        dialog.getDialogPane().setContent(new VBox(8,
+                new Label("Lançamentos e categorias próprias serão apagados de vez."),
+                new Label("Digite " + user.email() + " para confirmar:"),
+                emailField,
+                new Label("Digite sua senha:"),
+                passwordField));
         dialog.getDialogPane().getButtonTypes().setAll(delete, cancel);
         Node deleteNode = dialog.getDialogPane().lookupButton(delete);
         deleteNode.disableProperty().bind(Bindings.createBooleanBinding(
-                () -> !dialog.getEditor().getText().strip().equalsIgnoreCase(user.email()),
-                dialog.getEditor().textProperty()));
-        return dialog.showAndWait().isPresent();
+                () -> !emailField.getText().strip().equalsIgnoreCase(user.email())
+                        || passwordField.getText().isEmpty(),
+                emailField.textProperty(), passwordField.textProperty()));
+        dialog.setResultConverter(button -> button == delete ? passwordField.getText() : null);
+        return dialog.showAndWait();
     }
 }

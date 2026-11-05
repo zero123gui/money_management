@@ -20,6 +20,8 @@ API REST do Controle Financeiro Familiar.
 
    Na primeira execução, o Flyway cria as tabelas e as categorias padrão.
 
+O cadastro só aceita os e-mails de `SIGNUP_ALLOWED_EMAILS`. Para testar com qualquer e-mail, defina `SIGNUP_RESTRICTED=false` no `.env`.
+
 Para testar as rotas pelo navegador, defina `SWAGGER_ENABLED=true` no `.env` e abra `http://localhost:8080/swagger-ui.html`.
 
 Para compilar e testar tudo a partir da raiz do repositório: `mvn verify`. Os testes de integração usam Testcontainers, então o Docker Desktop precisa estar aberto; o banco local não é usado.

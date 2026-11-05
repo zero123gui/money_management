@@ -209,7 +209,7 @@ class RelatorioApiTest extends ApiTestSupport {
     @Test
     void tokenOfDeletedAccountCannotReadReports() {
         String token = newToken();
-        request(token, client.delete().uri("/api/v1/usuarios/me")).expectStatus().isNoContent();
+        deleteAccount(token, SENHA).expectStatus().isNoContent();
 
         request(token, client.get().uri(SALDO + OUTUBRO)).expectStatus().isUnauthorized();
         request(token, client.get().uri(CATEGORIAS + OUTUBRO)).expectStatus().isUnauthorized();

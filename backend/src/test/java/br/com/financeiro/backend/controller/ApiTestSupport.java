@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -46,6 +48,7 @@ abstract class ApiTestSupport {
         registry.add("SWAGGER_ENABLED", () -> "false");
         registry.add("LOGIN_MAX_ATTEMPTS", () -> "5");
         registry.add("LOGIN_BLOCK_DURATION", () -> "PT15M");
+        registry.add("SIGNUP_RESTRICTED", () -> "false");
     }
 
     @Autowired
@@ -74,6 +77,14 @@ abstract class ApiTestSupport {
         return client.post().uri("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("email", email, "senha", senha))
+                .exchange();
+    }
+
+    RestTestClient.ResponseSpec deleteAccount(String token, String senha) {
+        return client.method(HttpMethod.DELETE).uri("/api/v1/usuarios/me")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("senha", senha))
                 .exchange();
     }
 
