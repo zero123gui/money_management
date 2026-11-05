@@ -2,7 +2,7 @@
 
 > Atualize este arquivo **ao fim de cada sessão**. Decisões e motivos ficam em `DECISOES.md`.
 
-**Última atualização:** 2026-11-04
+**Última atualização:** 2026-11-05
 
 ## Já feito
 
@@ -118,17 +118,33 @@
   - [x] PR da conta (#16) mergeado na `main`.
   - [x] Backend: 5 falhas seguidas bloqueiam o e-mail por 15 minutos, com `429` e `Retry-After`.
   - [x] `LoginAttemptLimiterTest` e novos casos em `AuthApiTest` e no `ApiClientTest` do desktop.
+- [x] Sessão da revisão de segurança (2026-11-04 e 2026-11-05):
+  - [x] PR do limite de login (#17) mergeado na `main`.
+  - [x] Revisão feita por leitura do código e sondagens locais. Não foi um teste de invasão, e nenhum scanner de vulnerabilidades foi rodado.
+  - [x] Cadastro restrito à lista de e-mails, ligado por padrão; `SIGNUP_RESTRICTED=false` libera em testes e homologação.
+  - [x] `DELETE /usuarios/me` exige a senha, e a janela de exclusão do desktop passou a pedi-la.
+  - [x] Corpo do pedido de login limitado a 4 KB, com `413`.
+  - [x] `SWAGGER_ENABLED` removido do `.env.example`.
+  - [x] Regra de senha mantida em 8 caracteres, sem exigências extras.
+  - [x] `SignupRestrictionTest` e novos casos em `AuthApiTest`, `UsuarioApiTest`, `AuthorizationServiceTest` e no `ApiClientTest` do desktop.
+  - [x] Branches locais já mergeadas removidas.
 
 ## Próxima sessão
 
-O plano de telas do desktop terminou. A próxima sessão começa pelos itens do backlog, na ordem de `DECISOES.md`, "Próximos passos".
+Escolher o provedor de nuvem e publicar a API e o banco, seguindo `DECISOES.md`, "Próximos passos". Ao publicar:
+
+- Definir `SIGNUP_RESTRICTED=true` e `SIGNUP_ALLOWED_EMAILS` no provedor. A lista real está no `backend/.env` local.
+- HTTPS pelo proxy do provedor, conferindo o HSTS, que não aparece em HTTP.
+- Limite geral de pedidos no proxy: cada login sem token custa cerca de 200 ms de BCrypt. Reavaliar também o limite por IP.
+- `sslmode=require` no `DB_URL`.
+- Conferir que o proxy repassa o corpo do `DELETE /usuarios/me`.
 
 ## Backlog (depois)
 
 - [ ] Desktop: gerar um instalador para o Windows, para a família usar sem Maven nem JDK.
 - [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
-- [ ] CI (build e testes) e proteção da branch `main`. Conferir o `ViewsLoadTest` em ambiente sem tela: ele deveria ser ignorado, mas isso ainda não foi testado.
-- [ ] Revisão de segurança antes de qualquer deploy.
+- [ ] CI (build e testes), com verificação de vulnerabilidades nas dependências, e proteção da branch `main`. Conferir o `ViewsLoadTest` em ambiente sem tela: ele deveria ser ignorado, mas isso ainda não foi testado.
+- [ ] Tela de administração para o usuário incluir e-mails na lista de cadastro. Exige guardar a lista no banco e criar um perfil de administrador; nenhum dos dois existe hoje.
 - [ ] Pós-MVP: forma de pagamento, recorrência, parcelas, exportação CSV, limite por categoria.
 - [ ] Pós-MVP: versão para macOS.
 - [ ] Futuro: grupo familiar (`grupo_familiar`, `grupo_membro`, `compartilha_resumo`).
@@ -139,4 +155,6 @@ O plano de telas do desktop terminou. A próxima sessão começa pelos itens do 
 - Testar à mão a expiração real do token no desktop, depois de 1 hora de sessão. O retorno ao login só foi testado com um token inválido.
 - Mensagem genérica da API ("O recurso pedido não existe.") ao excluir ou restaurar um lançamento que mudou em outro aparelho. Funciona, mas o texto poderia ser mais claro.
 - Campo de data com texto inválido, ao perder o foco com um clique: pode ficar vazio sem mostrar erro. Conferir no uso real.
-- Trocar a senha não invalida os tokens já emitidos, que valem até expirar (no máximo 1 hora). Decidir se isso é aceitável antes de publicar na nuvem. Invalidar exigiria uma coluna nova em `usuario`.
+- Trocar a senha não invalida os tokens já emitidos, que valem até expirar (no máximo 1 hora). Decidir se isso é aceitável antes de publicar na nuvem. Invalidar exigiria uma coluna nova em `usuario`. O mesmo vale para sair do aplicativo.
+- Testar à mão a nova janela de exclusão da conta no desktop, com senha certa e errada. Os testes automáticos não abrem essa janela.
+- Resposta `400` de URL malformada vem em outro formato de erro, sem detalhes internos. Item menor da revisão.

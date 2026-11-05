@@ -394,10 +394,7 @@ class LancamentoApiTest extends ApiTestSupport {
     void tokenOfDeletedAccountCannotUseEntries() {
         String token = newToken();
         int lazer = standardCategory(token, "Lazer");
-        client.delete().uri("/api/v1/usuarios/me")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .exchange()
-                .expectStatus().isNoContent();
+        deleteAccount(token, SENHA).expectStatus().isNoContent();
 
         get(token, LANCAMENTOS).expectStatus().isUnauthorized();
         get(token, LANCAMENTOS + "/excluidos").expectStatus().isUnauthorized();

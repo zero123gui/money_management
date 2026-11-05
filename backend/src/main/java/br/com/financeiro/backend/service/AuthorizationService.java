@@ -4,6 +4,7 @@ import br.com.financeiro.backend.entity.Categoria;
 import br.com.financeiro.backend.entity.Usuario;
 import br.com.financeiro.backend.exception.ApiException;
 import br.com.financeiro.backend.repository.UsuarioRepository;
+import br.com.financeiro.backend.security.SignupProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -20,14 +21,30 @@ import org.springframework.stereotype.Service;
 public class AuthorizationService {
 
     private final UsuarioRepository usuarios;
+    private final SignupProperties signup;
 
     /**
      * Cria o service.
      *
      * @param usuarios acesso a usuários
+     * @param signup   quem pode criar conta
      */
-    public AuthorizationService(UsuarioRepository usuarios) {
+    public AuthorizationService(UsuarioRepository usuarios, SignupProperties signup) {
         this.usuarios = usuarios;
+        this.signup = signup;
+    }
+
+    /**
+     * Garante que o e-mail pode criar conta.
+     *
+     * @param email e-mail informado no cadastro
+     * @throws ApiException com 403 se o cadastro for restrito e o e-mail não estiver na lista
+     */
+    public void assertCanRegister(String email) {
+        if (!signup.allows(email)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Cadastro não permitido",
+                    "Este e-mail não está autorizado a criar uma conta.");
+        }
     }
 
     /**

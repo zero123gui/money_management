@@ -1,6 +1,7 @@
 package br.com.financeiro.backend.controller;
 
 import br.com.financeiro.backend.dto.AlterarSenhaRequest;
+import br.com.financeiro.backend.dto.ExcluirContaRequest;
 import br.com.financeiro.backend.dto.UsuarioResponse;
 import br.com.financeiro.backend.service.AuthorizationService;
 import br.com.financeiro.backend.service.UsuarioService;
@@ -58,10 +59,12 @@ public class UsuarioController {
 
     /**
      * Exclui definitivamente a conta do usuário autenticado e todos os seus dados.
+     *
+     * @param request senha atual, que confirma a exclusão
      */
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAccount() {
-        usuarioService.deleteAccount();
+    public void deleteAccount(@Valid @RequestBody ExcluirContaRequest request) {
+        usuarioService.deleteAccount(request);
     }
 }

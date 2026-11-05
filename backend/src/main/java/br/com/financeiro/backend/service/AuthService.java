@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
+    private final AuthorizationService authorization;
     private final UsuarioRepository usuarios;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
@@ -29,13 +30,15 @@ public class AuthService {
     /**
      * Cria o service.
      *
+     * @param authorization   diz quem pode criar conta
      * @param usuarios        acesso a usuários
      * @param passwordEncoder codificador de senhas
      * @param tokenService    emissor de tokens
      * @param loginAttempts   limite de tentativas de login
      */
-    public AuthService(UsuarioRepository usuarios, PasswordEncoder passwordEncoder, TokenService tokenService,
-            LoginAttemptLimiter loginAttempts) {
+    public AuthService(AuthorizationService authorization, UsuarioRepository usuarios,
+            PasswordEncoder passwordEncoder, TokenService tokenService, LoginAttemptLimiter loginAttempts) {
+        this.authorization = authorization;
         this.usuarios = usuarios;
         this.loginAttempts = loginAttempts;
         this.passwordEncoder = passwordEncoder;
@@ -48,9 +51,11 @@ public class AuthService {
      *
      * @param request dados do cadastro
      * @return o usuário criado
-     * @throws ApiException com 409 se o e-mail já estiver cadastrado
+     * @throws ApiException com 403 se o e-mail não puder criar conta, ou com 409 se já estiver cadastrado
      */
     public Usuario register(CadastroRequest request) {
+        // Antes de procurar o e-mail: o 409 revelaria a quem está fora da lista quem já tem conta.
+        authorization.assertCanRegister(request.email());
         if (usuarios.findByEmail(request.email()).isPresent()) {
             throw emailAlreadyRegistered();
         }

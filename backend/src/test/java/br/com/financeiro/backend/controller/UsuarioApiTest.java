@@ -103,9 +103,7 @@ class UsuarioApiTest extends ApiTestSupport {
         Owned ana = createData(anaEmail);
         Owned bia = createData(biaEmail);
 
-        client.delete().uri("/api/v1/usuarios/me")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + login(anaEmail))
-                .exchange()
+        deleteAccount(login(anaEmail), SENHA)
                 .expectStatus().isNoContent()
                 .expectBody().isEmpty();
 
@@ -123,15 +121,9 @@ class UsuarioApiTest extends ApiTestSupport {
         String email = register();
         String token = login(email);
 
-        client.delete().uri("/api/v1/usuarios/me")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .exchange()
-                .expectStatus().isNoContent();
+        deleteAccount(token, SENHA).expectStatus().isNoContent();
 
-        client.delete().uri("/api/v1/usuarios/me")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .exchange()
-                .expectStatus().isUnauthorized();
+        deleteAccount(token, SENHA).expectStatus().isUnauthorized();
         putPassword(token, SENHA, NOVA_SENHA).expectStatus().isUnauthorized();
         postLogin(email, SENHA).expectStatus().isUnauthorized();
     }
@@ -140,12 +132,40 @@ class UsuarioApiTest extends ApiTestSupport {
     void deletedEmailCanRegisterAgain() {
         String email = register();
 
-        client.delete().uri("/api/v1/usuarios/me")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + login(email))
-                .exchange()
-                .expectStatus().isNoContent();
+        deleteAccount(login(email), SENHA).expectStatus().isNoContent();
 
         postRegistration("Ana", email, SENHA).expectStatus().isCreated();
+    }
+
+    @Test
+    void wrongPasswordDoesNotDeleteTheAccount() {
+        String email = register();
+        String token = login(email);
+
+        deleteAccount(token, "senha-errada")
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.erros[0].campo").isEqualTo("senha")
+                .jsonPath("$.erros[0].mensagem").isEqualTo("está incorreta");
+
+        assertThat(usuarios.findByEmail(email)).isPresent();
+        postLogin(email, SENHA).expectStatus().isOk();
+    }
+
+    @Test
+    void deletingAccountWithoutPasswordIsRejected() {
+        String email = register();
+        String token = login(email);
+
+        client.delete().uri("/api/v1/usuarios/me")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isBadRequest();
+        deleteAccount(token, " ")
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.erros[0].campo").isEqualTo("senha");
+
+        assertThat(usuarios.findByEmail(email)).isPresent();
     }
 
     private RestTestClient.ResponseSpec putPassword(String token, String senhaAtual, String novaSenha) {

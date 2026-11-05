@@ -11,8 +11,10 @@ import br.com.financeiro.backend.entity.Tipo;
 import br.com.financeiro.backend.entity.Usuario;
 import br.com.financeiro.backend.exception.ApiException;
 import br.com.financeiro.backend.repository.UsuarioRepository;
+import br.com.financeiro.backend.security.SignupProperties;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -28,11 +30,34 @@ import org.springframework.test.util.ReflectionTestUtils;
 class AuthorizationServiceTest {
 
     private final UsuarioRepository usuarios = mock(UsuarioRepository.class);
-    private final AuthorizationService authorization = new AuthorizationService(usuarios);
+    private final AuthorizationService authorization = new AuthorizationService(usuarios,
+            new SignupProperties(true, Set.of("Na-Lista@exemplo.com")));
 
     @AfterEach
     void clearSecurityContext() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void restrictedSignupAcceptsOnlyTheList() {
+        assertThatCode(() -> authorization.assertCanRegister("na-lista@EXEMPLO.com")).doesNotThrowAnyException();
+        assertThatThrownBy(() -> authorization.assertCanRegister("fora@exemplo.com"))
+                .isInstanceOfSatisfying(ApiException.class,
+                        exception -> assertThat(exception.getStatus()).isEqualTo(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    void restrictedSignupWithEmptyListAcceptsNobody() {
+        AuthorizationService closed = new AuthorizationService(usuarios, new SignupProperties(true, Set.of()));
+
+        assertThatThrownBy(() -> closed.assertCanRegister("qualquer@exemplo.com")).isInstanceOf(ApiException.class);
+    }
+
+    @Test
+    void unrestrictedSignupAcceptsAnyEmail() {
+        AuthorizationService open = new AuthorizationService(usuarios, new SignupProperties(false, Set.of()));
+
+        assertThatCode(() -> open.assertCanRegister("qualquer@exemplo.com")).doesNotThrowAnyException();
     }
 
     @Test

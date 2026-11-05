@@ -5,12 +5,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import br.com.financeiro.backend.repository.UsuarioRepository;
 import com.jayway.jsonpath.JsonPath;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -19,11 +25,17 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
  * Exercita o cadastro, o login e a validação do token.
  */
 class AuthApiTest extends ApiTestSupport {
+
+    private static final int LOGIN_BODY_LIMIT = 4 * 1024;
+
+    @Value("${local.server.port}")
+    private int port;
 
     @Autowired
     private UsuarioRepository usuarios;
@@ -206,6 +218,60 @@ class AuthApiTest extends ApiTestSupport {
         String email = register();
 
         postLogin(email, "x".repeat(500)).expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void loginBodyAtTheLimitIsAccepted() {
+        postRawLogin(loginBodyOfSize(LOGIN_BODY_LIMIT)).expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void loginBodyOverTheLimitIsRejected() {
+        postRawLogin(loginBodyOfSize(LOGIN_BODY_LIMIT + 1))
+                .expectStatus().isEqualTo(413)
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                .expectBody()
+                .jsonPath("$.status").isEqualTo(413)
+                .jsonPath("$.detail").isEqualTo("O corpo do pedido de login é grande demais.");
+    }
+
+    @Test
+    void chunkedLoginBodyOverTheLimitIsRejected() throws Exception {
+        assertThat(postChunkedLogin(loginBodyOfSize(LOGIN_BODY_LIMIT + 1))).isEqualTo(413);
+    }
+
+    @Test
+    void chunkedLoginWithinTheLimitStillWorks() throws Exception {
+        String email = register();
+        String body = "{\"email\":\"" + email + "\",\"senha\":\"" + SENHA + "\"}";
+
+        assertThat(postChunkedLogin(body)).isEqualTo(200);
+    }
+
+    private RestTestClient.ResponseSpec postRawLogin(String body) {
+        return client.post().uri("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .exchange();
+    }
+
+    /** Envia sem declarar o tamanho, como faz um cliente que tenta escapar do limite. */
+    private int postChunkedLogin(String body) throws Exception {
+        byte[] content = body.getBytes(StandardCharsets.UTF_8);
+        HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/auth/login"))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .POST(HttpRequest.BodyPublishers.ofInputStream(() -> new ByteArrayInputStream(content)))
+                .build();
+        try (HttpClient http = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build()) {
+            return http.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
+        }
+    }
+
+    private static String loginBodyOfSize(int size) {
+        String email = uniqueEmail();
+        String template = "{\"email\":\"" + email + "\",\"senha\":\"\"}";
+        String password = "x".repeat(size - template.length());
+        return "{\"email\":\"" + email + "\",\"senha\":\"" + password + "\"}";
     }
 
     @Test

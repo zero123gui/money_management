@@ -53,9 +53,10 @@
 | `204`  | Sucesso sem corpo (ex.: exclusão, troca de senha).                          |
 | `400`  | Dados inválidos (campo faltando, valor negativo, categoria de outro tipo…). |
 | `401`  | Sem token, token inválido ou expirado, ou login com credenciais erradas.    |
-| `403`  | Autenticado, mas a ação não é permitida (ex.: alterar categoria padrão).    |
+| `403`  | Ação não permitida (ex.: alterar categoria padrão, cadastro de e-mail fora da lista). |
 | `404`  | Recurso não existe ou pertence a outro usuário.                             |
 | `409`  | Conflito com o estado atual (ex.: e-mail já cadastrado).                    |
+| `413`  | Corpo do pedido de login grande demais.                                     |
 | `429`  | Muitas tentativas de login. Cabeçalho `Retry-After` indica os segundos que faltam. |
 | `500`  | Erro inesperado no servidor. Nunca expõe detalhes internos.                 |
 
@@ -138,6 +139,7 @@ Cria um usuário. Requisição:
 
 - Validações: todos obrigatórios; `nome` com até 100 caracteres; `email` em formato válido, com até 254 caracteres; `senha` com no mínimo 8 caracteres e no máximo 72 bytes (limite do BCrypt; letras acentuadas ocupam 2 bytes).
 - `201` com o usuário criado (mesmo formato de `GET /usuarios/me`), sem a senha, e o cabeçalho `Location: /api/v1/usuarios/me`.
+- `403` se o cadastro for restrito e o e-mail não estiver na lista de permitidos (`SIGNUP_RESTRICTED` e `SIGNUP_ALLOWED_EMAILS`). A conferência não diferencia maiúsculas e vem antes da busca pelo e-mail, então quem está fora da lista não descobre quem já tem conta. A restrição fica ligada por padrão, e ambientes de teste e homologação a desligam.
 - `409` se o e-mail já estiver cadastrado.
 
 #### `POST /auth/login` 🔓
@@ -154,6 +156,7 @@ Cria um usuário. Requisição:
 
 - `401` com a mesma mensagem genérica ("E-mail ou senha inválidos"), seja o e-mail inexistente ou a senha errada. Assim a API não revela quais e-mails estão cadastrados.
 - `429` com o cabeçalho `Retry-After` depois de 5 falhas seguidas no mesmo e-mail, por 15 minutos a partir da última falha. Vale também para a senha certa e para e-mails que não existem. Um login certo antes do limite zera a contagem. Tokens já emitidos continuam válidos.
+- `413` se o corpo tiver mais de 4 KB, com ou sem o cabeçalho `Content-Length`.
 
 ### 2.2 Usuário
 
@@ -177,7 +180,14 @@ Cria um usuário. Requisição:
 
 #### `DELETE /usuarios/me` 🔒 (Desejável)
 
-Exclui a conta e todos os dados do usuário (lançamentos e categorias próprias). É uma exclusão **definitiva**, diferente da exclusão de lançamentos. `204`.
+Exclui a conta e todos os dados do usuário (lançamentos e categorias próprias). É uma exclusão **definitiva**, diferente da exclusão de lançamentos. A senha atual é obrigatória, para que só o token não baste:
+
+```json
+{ "senha": "uma-senha-forte" }
+```
+
+- `204` em caso de sucesso.
+- `400` se a `senha` faltar ou estiver errada, ou se o corpo não for enviado. A conta não é alterada.
 
 ### 2.3 Categorias
 

@@ -261,10 +261,7 @@ class CategoriaApiTest extends ApiTestSupport {
     @Test
     void tokenOfDeletedAccountCannotUseCategories() {
         String token = newToken();
-        client.delete().uri("/api/v1/usuarios/me")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .exchange()
-                .expectStatus().isNoContent();
+        deleteAccount(token, SENHA).expectStatus().isNoContent();
 
         get(token, "/api/v1/categorias").expectStatus().isUnauthorized();
         post(token, Map.of("nome", "Mercado", "tipo", "DESPESA")).expectStatus().isUnauthorized();

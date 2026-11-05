@@ -1,6 +1,7 @@
 package br.com.financeiro.backend.service;
 
 import br.com.financeiro.backend.dto.AlterarSenhaRequest;
+import br.com.financeiro.backend.dto.ExcluirContaRequest;
 import br.com.financeiro.backend.entity.Usuario;
 import br.com.financeiro.backend.exception.InvalidFieldException;
 import br.com.financeiro.backend.repository.UsuarioRepository;
@@ -49,10 +50,18 @@ public class UsuarioService {
 
     /**
      * Exclui definitivamente a conta do usuário autenticado (RF-05). O banco
-     * apaga em cascata as categorias próprias e os lançamentos.
+     * apaga em cascata as categorias próprias e os lançamentos. A senha é exigida
+     * porque a ação não tem volta: um token roubado não basta para apagar tudo.
+     *
+     * @param request senha atual
+     * @throws InvalidFieldException se a senha estiver errada
      */
     @Transactional
-    public void deleteAccount() {
-        usuarios.deleteById(authorization.currentUser().getId());
+    public void deleteAccount(ExcluirContaRequest request) {
+        Usuario usuario = authorization.currentUser();
+        if (!passwordEncoder.matches(request.senha(), usuario.getPasswordHash())) {
+            throw new InvalidFieldException("senha", "está incorreta");
+        }
+        usuarios.deleteById(usuario.getId());
     }
 }

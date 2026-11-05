@@ -11,6 +11,7 @@ import br.com.financeiro.desktop.api.dto.CategoriaResponse;
 import br.com.financeiro.desktop.api.dto.CategoriaUpdateRequest;
 import br.com.financeiro.desktop.api.dto.CategoriaTotalResponse;
 import br.com.financeiro.desktop.api.dto.SaldoResponse;
+import br.com.financeiro.desktop.api.dto.ExcluirContaRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoExcluidoResponse;
 import br.com.financeiro.desktop.api.dto.LancamentoRequest;
 import br.com.financeiro.desktop.api.dto.LancamentoResponse;
@@ -518,15 +519,32 @@ class ApiClientTest {
     }
 
     @Test
-    void deletesOwnAccountAcceptingAnEmptyResponse() {
+    void deletesOwnAccountSendingThePasswordAndAcceptingAnEmptyResponse() {
         session.open("meu-token");
         respondWith("/usuarios/me", 204, "application/json", "");
 
-        client.deleteAccount();
+        client.deleteAccount(new ExcluirContaRequest("minha-senha"));
 
         assertThat(receivedMethod.get()).isEqualTo("DELETE");
         assertThat(receivedPath.get()).isEqualTo("/api/v1/usuarios/me");
+        assertThat(receivedBody.get()).isEqualTo("""
+                {"senha":"minha-senha"}""");
         assertThat(receivedAuthorization.get()).isEqualTo("Bearer meu-token");
+    }
+
+    @Test
+    void wrongPasswordOnAccountDeletionIsAFieldErrorNotAnExpiredSession() {
+        session.open("meu-token");
+        respondWith("/usuarios/me", 400, "application/problem+json", """
+                {"title":"Dados inválidos","status":400,"detail":"Um ou mais campos estão inválidos.",
+                 "erros":[{"campo":"senha","mensagem":"está incorreta"}]}""");
+
+        ApiException failure = catchThrowableOfType(ApiException.class,
+                () -> client.deleteAccount(new ExcluirContaRequest("errada")));
+
+        assertThat(failure).isNotInstanceOf(SessionExpiredException.class);
+        assertThat(failure.describe(Map.of("senha", "Senha"))).isEqualTo("Senha: está incorreta");
+        assertThat(session.token()).isEqualTo("meu-token");
     }
 
     @Test
