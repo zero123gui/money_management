@@ -47,8 +47,6 @@ public class ContaController {
     @FXML
     private PasswordField confirmationField;
     @FXML
-    private Label passwordNoticeLabel;
-    @FXML
     private Label passwordErrorLabel;
     @FXML
     private Button changePasswordButton;
@@ -64,7 +62,7 @@ public class ContaController {
      *
      * @param api       cliente da API
      * @param tasks     executor das chamadas
-     * @param navigator volta para o login depois de excluir a conta
+     * @param navigator volta para o login depois de trocar a senha ou excluir a conta
      */
     public ContaController(ApiClient api, ApiTasks tasks, Navigator navigator) {
         this.api = api;
@@ -75,7 +73,6 @@ public class ContaController {
     @FXML
     private void initialize() {
         accountErrorLabel.managedProperty().bind(accountErrorLabel.visibleProperty());
-        passwordNoticeLabel.managedProperty().bind(passwordNoticeLabel.visibleProperty());
         passwordErrorLabel.managedProperty().bind(passwordErrorLabel.visibleProperty());
         deleteErrorLabel.managedProperty().bind(deleteErrorLabel.visibleProperty());
         // A confirmação da exclusão pede o e-mail, então só é liberada depois de carregá-lo.
@@ -88,7 +85,6 @@ public class ContaController {
 
     @FXML
     private void onChangePassword() {
-        passwordNoticeLabel.setVisible(false);
         passwordErrorLabel.setVisible(false);
         // Só esta regra fica no cliente: a API recebe a nova senha uma vez e não tem como compará-las.
         if (!newPasswordField.getText().equals(confirmationField.getText())) {
@@ -101,14 +97,7 @@ public class ContaController {
         tasks.run(() -> {
             api.changePassword(request);
             return true;
-        }, changed -> {
-            changePasswordButton.setDisable(false);
-            currentPasswordField.clear();
-            newPasswordField.clear();
-            confirmationField.clear();
-            passwordNoticeLabel.setText("Senha alterada. Use a nova senha no próximo login.");
-            passwordNoticeLabel.setVisible(true);
-        }, this::onPasswordFailed);
+        }, changed -> navigator.onPasswordChanged(), this::onPasswordFailed);
     }
 
     @FXML

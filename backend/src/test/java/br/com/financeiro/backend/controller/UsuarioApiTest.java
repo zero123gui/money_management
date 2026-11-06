@@ -9,6 +9,7 @@ import br.com.financeiro.backend.entity.Usuario;
 import br.com.financeiro.backend.repository.CategoriaRepository;
 import br.com.financeiro.backend.repository.LancamentoRepository;
 import br.com.financeiro.backend.repository.UsuarioRepository;
+import com.jayway.jsonpath.JsonPath;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
@@ -47,6 +48,30 @@ class UsuarioApiTest extends ApiTestSupport {
                 .isNotEqualTo(hashBefore)
                 .startsWith("$2")
                 .doesNotContain(NOVA_SENHA);
+    }
+
+    @Test
+    void changingPasswordEndsEveryTokenOfTheUser() {
+        String email = register();
+        String notebook = login(email);
+        String desktop = login(email);
+
+        putPassword(notebook, SENHA, NOVA_SENHA).expectStatus().isNoContent();
+
+        getMe(notebook).expectStatus().isUnauthorized();
+        getMe(desktop).expectStatus().isUnauthorized();
+        String body = postLogin(email, NOVA_SENHA).expectStatus().isOk()
+                .expectBody(String.class).returnResult().getResponseBody();
+        getMe(JsonPath.read(body, "$.token")).expectStatus().isOk();
+    }
+
+    @Test
+    void failedPasswordChangeKeepsTheToken() {
+        String token = login(register());
+
+        putPassword(token, "senha-errada", NOVA_SENHA).expectStatus().isBadRequest();
+
+        getMe(token).expectStatus().isOk();
     }
 
     @Test

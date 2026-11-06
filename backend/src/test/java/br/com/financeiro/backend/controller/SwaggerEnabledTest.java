@@ -35,7 +35,7 @@ class SwaggerEnabledTest extends ApiTestSupport {
         Map<String, Map<String, Object>> paths = JsonPath.read(spec(), "$.paths");
 
         assertThat(paths).containsOnlyKeys(
-                "/api/v1/auth/cadastro", "/api/v1/auth/login",
+                "/api/v1/auth/cadastro", "/api/v1/auth/login", "/api/v1/auth/sair",
                 "/api/v1/usuarios/me", "/api/v1/usuarios/me/senha",
                 "/api/v1/categorias", "/api/v1/categorias/{id}",
                 "/api/v1/lancamentos", "/api/v1/lancamentos/{id}", "/api/v1/lancamentos/excluidos",
@@ -46,7 +46,7 @@ class SwaggerEnabledTest extends ApiTestSupport {
         assertThat(paths.get("/api/v1/categorias/{id}")).containsOnlyKeys("put");
         assertThat(paths.get("/api/v1/lancamentos")).containsOnlyKeys("get", "post");
         assertThat(paths.get("/api/v1/lancamentos/{id}")).containsOnlyKeys("get", "put", "delete");
-        assertThat(paths.values().stream().mapToInt(Map::size).sum()).isEqualTo(17);
+        assertThat(paths.values().stream().mapToInt(Map::size).sum()).isEqualTo(18);
     }
 
     @Test
@@ -65,6 +65,7 @@ class SwaggerEnabledTest extends ApiTestSupport {
 
         assertThat(JsonPath.<List<?>>read(spec, "$.paths['/api/v1/auth/login'].post.security")).isEmpty();
         assertThat(JsonPath.<List<?>>read(spec, "$.paths['/api/v1/auth/cadastro'].post.security")).isEmpty();
+        assertThat(JsonPath.<List<?>>read(spec, "$.paths['/api/v1/auth/sair'].post.security[*].bearer")).hasSize(1);
         assertThat(JsonPath.<List<?>>read(spec, "$.security[*].bearer")).hasSize(1);
         assertThat(JsonPath.<Map<String, Object>>read(spec, "$.paths['/api/v1/usuarios/me'].get"))
                 .doesNotContainKey("security");

@@ -2,7 +2,7 @@
 
 > Atualize este arquivo **ao fim de cada sessão**. Decisões e motivos ficam em `DECISOES.md`.
 
-**Última atualização:** 2026-11-05
+**Última atualização:** 2026-11-06
 
 ## Já feito
 
@@ -129,20 +129,35 @@
   - [x] `SignupRestrictionTest` e novos casos em `AuthApiTest`, `UsuarioApiTest`, `AuthorizationServiceTest` e no `ApiClientTest` do desktop.
   - [x] Branches locais já mergeadas removidas.
 
+- [x] Sessão da escolha da hospedagem (2026-11-06):
+  - [x] PR da revisão de segurança (#18) mergeado na `main`.
+  - [x] Comparados provedores e formas de empacotar o desktop, com preços conferidos no dia.
+  - [x] Decidido: banco no Supabase grátis, API no Render grátis, os dois no leste dos EUA.
+  - [x] Decidido: backup semanal manual, sem criptografia, no desktop de casa, separado do notebook de desenvolvimento.
+  - [x] O usuário vai tornar o repositório público no GitHub. Aceitou que o e-mail pessoal apareça como autor dos commits.
+  - [x] Trocar a senha encerra todos os tokens do usuário, e sair encerra o token daquele aparelho: `POST /auth/sair` e migração `V2` (`versao_token` e `token_revogado`).
+  - [x] Desktop: Sair e fechar a janela encerram o token na API; trocar a senha volta para o login.
+  - [x] Desktop: espera de até 3 minutos pela API, com aviso no login depois de 5 segundos.
+  - [x] Testes de integração passaram para o PostgreSQL 17, a versão do Supabase.
+  - [x] Novos casos em `AuthApiTest`, `UsuarioApiTest`, `SwaggerEnabledTest` e no `ApiClientTest` do desktop.
+  - [x] Itens menores da revisão descartados pelo usuário.
+  - [x] Licença MIT adicionada (`LICENSE`).
+
 ## Próxima sessão
 
-Escolher o provedor de nuvem e publicar a API e o banco, seguindo `DECISOES.md`, "Próximos passos". Ao publicar:
+Publicar a API e o banco, seguindo `DECISOES.md`, "Provedores de nuvem":
 
-- Definir `SIGNUP_RESTRICTED=true` e `SIGNUP_ALLOWED_EMAILS` no provedor. A lista real está no `backend/.env` local.
-- HTTPS pelo proxy do provedor, conferindo o HSTS, que não aparece em HTTP.
-- Limite geral de pedidos no proxy: cada login sem token custa cerca de 200 ms de BCrypt. Reavaliar também o limite por IP.
-- `sslmode=require` no `DB_URL`.
-- Conferir que o proxy repassa o corpo do `DELETE /usuarios/me`.
+- Criar o projeto no Supabase (`us-east-1`) e o serviço no Render (Virginia), e preparar a imagem Docker da API.
+- `DB_URL` pelo *session pooler* do Supabase, com `sslmode=require`.
+- Definir `SIGNUP_RESTRICTED=true`, `SIGNUP_ALLOWED_EMAILS` (a lista real está no `backend/.env` local) e um `JWT_SECRET` novo no Render.
+- Medir quanto a API leva para acordar no Render grátis e conferir se os 3 minutos de espera do desktop bastam.
+- Conferir o HTTPS e o HSTS, e que o Render repassa o corpo do `DELETE /usuarios/me`.
+- Montar o backup semanal no desktop de casa: instalar o `pg_dump` 17 e agendar o script.
+- Limite geral de pedidos e limite por IP: ver o que o Render oferece e reavaliar.
 
 ## Backlog (depois)
 
-- [ ] Desktop: gerar um instalador para o Windows, para a família usar sem Maven nem JDK.
-- [ ] Depois do MVP rodando localmente: escolher o provedor de nuvem e publicar a API e o banco (com HTTPS).
+- [ ] Desktop: gerar um instalador para o Windows, para a família usar sem Maven nem JDK. Recomendação, ainda não decidida: `jpackage` gerado pelo GitHub Actions e publicado nas versões do GitHub; atualização automática com o jDeploy depois.
 - [ ] CI (build e testes), com verificação de vulnerabilidades nas dependências, e proteção da branch `main`. Conferir o `ViewsLoadTest` em ambiente sem tela: ele deveria ser ignorado, mas isso ainda não foi testado.
 - [ ] Tela de administração para o usuário incluir e-mails na lista de cadastro. Exige guardar a lista no banco e criar um perfil de administrador; nenhum dos dois existe hoje.
 - [ ] Pós-MVP: forma de pagamento, recorrência, parcelas, exportação CSV, limite por categoria.
@@ -151,10 +166,9 @@ Escolher o provedor de nuvem e publicar a API e o banco, seguindo `DECISOES.md`,
 
 ## Pendências e dúvidas em aberto
 
-- Provedor de nuvem para a API e o banco (decidir depois do MVP local).
-- Testar à mão a expiração real do token no desktop, depois de 1 hora de sessão. O retorno ao login só foi testado com um token inválido.
-- Mensagem genérica da API ("O recurso pedido não existe.") ao excluir ou restaurar um lançamento que mudou em outro aparelho. Funciona, mas o texto poderia ser mais claro.
-- Campo de data com texto inválido, ao perder o foco com um clique: pode ficar vazio sem mostrar erro. Conferir no uso real.
-- Trocar a senha não invalida os tokens já emitidos, que valem até expirar (no máximo 1 hora). Decidir se isso é aceitável antes de publicar na nuvem. Invalidar exigiria uma coluna nova em `usuario`. O mesmo vale para sair do aplicativo.
-- Testar à mão a nova janela de exclusão da conta no desktop, com senha certa e errada. Os testes automáticos não abrem essa janela.
-- Resposta `400` de URL malformada vem em outro formato de erro, sem detalhes internos. Item menor da revisão.
+- O PostgreSQL local do Windows é o 16, e o Supabase e os testes usam o 17. Avaliar instalar o 17 localmente.
+- Testar à mão no desktop:
+  - a expiração real do token, depois de 1 hora de sessão (o retorno ao login só foi testado com um token inválido);
+  - a janela de exclusão da conta, com a senha certa e com a errada;
+  - Sair, fechar a janela e trocar a senha: depois de cada um, o token antigo deve receber `401`;
+  - o aviso de espera no login, com a API demorando para responder.

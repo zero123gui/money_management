@@ -3,16 +3,21 @@ package br.com.financeiro.backend.service;
 import br.com.financeiro.backend.dto.CadastroRequest;
 import br.com.financeiro.backend.dto.LoginRequest;
 import br.com.financeiro.backend.dto.TokenResponse;
+import br.com.financeiro.backend.entity.TokenRevogado;
 import br.com.financeiro.backend.entity.Usuario;
 import br.com.financeiro.backend.exception.ApiException;
 import br.com.financeiro.backend.exception.TooManyLoginAttemptsException;
+import br.com.financeiro.backend.repository.TokenRevogadoRepository;
 import br.com.financeiro.backend.repository.UsuarioRepository;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Cadastro e login de usuários.
@@ -22,6 +27,7 @@ public class AuthService {
 
     private final AuthorizationService authorization;
     private final UsuarioRepository usuarios;
+    private final TokenRevogadoRepository revokedTokens;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final LoginAttemptLimiter loginAttempts;
@@ -30,15 +36,18 @@ public class AuthService {
     /**
      * Cria o service.
      *
-     * @param authorization   diz quem pode criar conta
+     * @param authorization   diz quem pode criar conta e qual é o token atual
      * @param usuarios        acesso a usuários
+     * @param revokedTokens   tokens encerrados pelo logout
      * @param passwordEncoder codificador de senhas
      * @param tokenService    emissor de tokens
      * @param loginAttempts   limite de tentativas de login
      */
     public AuthService(AuthorizationService authorization, UsuarioRepository usuarios,
-            PasswordEncoder passwordEncoder, TokenService tokenService, LoginAttemptLimiter loginAttempts) {
+            TokenRevogadoRepository revokedTokens, PasswordEncoder passwordEncoder, TokenService tokenService,
+            LoginAttemptLimiter loginAttempts) {
         this.authorization = authorization;
+        this.revokedTokens = revokedTokens;
         this.usuarios = usuarios;
         this.loginAttempts = loginAttempts;
         this.passwordEncoder = passwordEncoder;
@@ -92,6 +101,19 @@ public class AuthService {
         }
         loginAttempts.recordSuccess(request.email());
         return tokenService.issue(usuario.get());
+    }
+
+    /**
+     * Encerra o token usado nesta requisição (RF-03). Outros tokens do mesmo
+     * usuário, em outros aparelhos, continuam valendo.
+     */
+    @Transactional
+    public void logout() {
+        Jwt token = authorization.currentToken();
+        // Aproveita para limpar a lista: tokens expirados já são recusados pela assinatura.
+        revokedTokens.deleteExpired(Instant.now());
+        revokedTokens.save(new TokenRevogado(UUID.fromString(token.getId()),
+                authorization.currentUserId(), token.getExpiresAt()));
     }
 
     private static ApiException emailAlreadyRegistered() {

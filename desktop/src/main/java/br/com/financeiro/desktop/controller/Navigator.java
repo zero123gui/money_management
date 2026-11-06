@@ -63,10 +63,30 @@ public class Navigator {
         showLoginWithNotice("Sua conta e todos os seus dados foram excluídos.");
     }
 
-    /** Encerra a sessão e volta para o login (RF-03). */
+    /**
+     * Volta para o login depois de trocar a senha: a API encerra todos os
+     * tokens do usuário, inclusive o desta sessão.
+     */
+    public void onPasswordChanged() {
+        session.clear();
+        showLoginWithNotice("Senha alterada. Entre com a nova senha.");
+    }
+
+    /**
+     * Encerra a sessão e volta para o login (RF-03). O token também é encerrado
+     * na API, em segundo plano, para a tela não esperar a resposta.
+     */
     public void logout() {
+        String token = session.token();
         session.clear();
         showLogin();
+        if (token != null) {
+            // Se a API não responder, não há o que fazer: o token vence sozinho em até 1 hora.
+            tasks.run(() -> {
+                api.logout(token);
+                return true;
+            }, done -> { }, failure -> { });
+        }
     }
 
     /**

@@ -519,6 +519,28 @@ class ApiClientTest {
     }
 
     @Test
+    void logoutEndsTheGivenTokenWithoutNeedingTheSession() {
+        respondWith("/auth/sair", 204, "application/json", "");
+
+        client.logout("token-descartado");
+
+        assertThat(receivedMethod.get()).isEqualTo("POST");
+        assertThat(receivedPath.get()).isEqualTo("/api/v1/auth/sair");
+        assertThat(receivedAuthorization.get()).isEqualTo("Bearer token-descartado");
+        assertThat(session.isActive()).isFalse();
+    }
+
+    @Test
+    void refusedLogoutIsAnErrorNotAnExpiredSession() {
+        respondWithProblem("/auth/sair", 401, "Token inválido ou expirado.");
+
+        ApiException failure = catchThrowableOfType(ApiException.class, () -> client.logout("vencido"));
+
+        assertThat(failure).isNotInstanceOf(SessionExpiredException.class);
+        assertThat(failure.getStatus()).isEqualTo(401);
+    }
+
+    @Test
     void deletesOwnAccountSendingThePasswordAndAcceptingAnEmptyResponse() {
         session.open("meu-token");
         respondWith("/usuarios/me", 204, "application/json", "");
