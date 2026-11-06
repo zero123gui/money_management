@@ -101,7 +101,9 @@ Decidido em 2026-11-04, com a proposta aprovada pelo usuário.
 - **Data e hora aparecem no fuso do computador**, convertidas na tela a partir do UTC da API, decidido em 2026-11-04. A API e o banco continuam em UTC. Motivo: cada computador mostra o próprio horário, sem configuração, e o servidor na nuvem pode estar em outro fuso.
 - **Restaurar lançamento não pede confirmação.** Motivo: a ação não perde nada, e o lançamento pode ser excluído de novo.
 - **Excluir a conta exige digitar o e-mail**, e o botão só é liberado com o texto certo. Motivo: é a única ação do aplicativo sem volta. A API não pede essa confirmação; ela só evita um engano na tela. A janela também pede a senha desde 2026-11-05, conferida pela API (ver "Exclusão da conta exige a senha").
-- **Trocar a senha mantém a sessão aberta.** Motivo: o token continua válido até expirar, como já diz `docs/API.md`.
+- ~~**Trocar a senha mantém a sessão aberta.** Motivo: o token continua válido até expirar, como já diz `docs/API.md`.~~ **Substituída** em 2026-11-06: trocar a senha volta para o login, com o aviso "Senha alterada. Entre com a nova senha.", pois a API encerra todos os tokens do usuário (ver "Modelo de acesso").
+- **Sair e fechar o aplicativo encerram o token na API**, decidido em 2026-11-06. Ao clicar em Sair, a tela volta ao login na hora e o pedido segue em segundo plano. Ao fechar a janela, o aplicativo espera até 5 segundos. Motivo: a tela não fica presa esperando a API; se ela não responder, o token vence sozinho em até 1 hora.
+- **Esperar até 3 minutos pela resposta da API**, e até 30 segundos para conectar, decidido em 2026-11-06. Antes eram 30 e 10 segundos. Motivo: no plano grátis do Render, o primeiro pedido do dia espera a API acordar. Depois de 5 segundos sem resposta, o login avisa que o primeiro acesso do dia pode demorar, para a espera não parecer travamento.
 - **Resumo sem gráfico no MVP**: uma tabela já atende o RF-17.
 - **Testes**: cliente HTTP contra um servidor local falso e carregamento de cada FXML. As telas são conferidas à mão. Motivo: testes automatizados de tela costumam ser frágeis, e as regras importantes já estão testadas no backend.
 
@@ -112,8 +114,8 @@ Decidido em 2026-10-28.
 - **Desenvolver, buildar e testar tudo localmente antes de ir para a nuvem.** Motivo: erros são mais fáceis de achar e corrigir na própria máquina, sem custo e sem expor uma API incompleta na internet. A nuvem entra quando o MVP funcionar localmente.
 - **PostgreSQL instalado direto no Windows** do desenvolvedor, que já está instalado. Motivo: já está disponível.
   ~~O Docker seria mais uma ferramenta para aprender sem ganho real para um único desenvolvedor. Reavaliar se surgir a necessidade de recriar o banco do zero com frequência ou de rodar o mesmo ambiente em outra máquina.~~ **Substituída** em 2026-11-03 pelo item abaixo.
-- **Testes de integração com Testcontainers e Docker**, decidido em 2026-11-03. Cada execução sobe um PostgreSQL 16 descartável (`postgres:16-alpine`), aplica as migrações do Flyway e descarta o contêiner no fim. O Docker Desktop precisa estar aberto para rodar `mvn verify`.
-- O banco local usa **dados fictícios**. Dados financeiros reais da família só existem no banco da nuvem e nunca são copiados para a máquina de desenvolvimento.
+- **Testes de integração com Testcontainers e Docker**, decidido em 2026-11-03. Cada execução sobe um PostgreSQL descartável (`postgres:17-alpine` desde 2026-11-06, a versão do Supabase; antes, `postgres:16-alpine`), aplica as migrações do Flyway e descarta o contêiner no fim. O Docker Desktop precisa estar aberto para rodar `mvn verify`.
+- O banco local usa **dados fictícios**. Dados financeiros reais da família só existem no banco da nuvem e nunca são copiados para a máquina de desenvolvimento. A única cópia fora da nuvem é o backup semanal, no desktop de casa (ver "Backup do banco").
 - A **estrutura** do banco (tabelas, colunas, restrições) é igual no local e na nuvem. Os **dados** são diferentes.
 
 ## Modelo de acesso
@@ -141,6 +143,10 @@ Decidido em 2026-10-28.
 - **Exclusão da conta exige a senha**, decidido em 2026-11-05: `DELETE /usuarios/me` recebe a `senha` no corpo. Motivo: a ação não tem volta, e um token roubado não deve bastar para apagar tudo. O corpo em `DELETE` foi mantido para não mudar a rota do contrato; a RFC 9110 não define o significado dele, então é preciso conferir que o proxy do provedor o repassa.
 - **Limite de 4 KB no corpo do pedido de login**, decidido em 2026-11-05, com `413`. Motivo: a rota é pública, e a revisão confirmou que ela aceitava 5 MB. O filtro lê no máximo o limite, então também vale para corpo sem `Content-Length`. **Só no login**, por decisão do usuário em 2026-11-05: `POST /auth/cadastro`, também pública, e as rotas com token ficam sem esse limite.
 - **Senha com no mínimo 8 caracteres, sem exigências extras**, confirmado pelo usuário em 2026-11-05. Motivo: o aplicativo não movimenta dinheiro, e o usuário não quer endurecer mais essa regra.
+- **Token deixa de valer ao trocar a senha e ao sair**, decidido em 2026-11-06. Substitui a regra anterior, em que o token valia até expirar. Motivo: pedido do usuário; um token vazado não deve continuar servindo depois de a pessoa trocar a senha ou sair.
+  - **Troca de senha encerra todos os tokens do usuário**, em todos os aparelhos. Cada token leva a versão de `usuario.versao_token` de quando foi emitido, e a troca de senha soma 1 a essa versão.
+  - **Sair encerra só o token daquele aparelho.** Motivo: a família usa vários aparelhos, e sair no notebook não deve derrubar o desktop de casa. O id do token (claim `jti`) vai para a tabela `token_revogado` até a hora em que expiraria; cada logout aproveita para apagar os registros vencidos.
+  - A conferência roda a cada pedido com token, no validador do próprio decodificador de JWT, antes de chegar a qualquer controller. Custa duas consultas pequenas ao banco por pedido, aceitável para o uso familiar.
 - O **token JWT expira em 1 hora** (decidido em 2026-10-28). Depois disso, o usuário entra de novo. O valor fica em configuração, não fixo no código, para poder mudar sem recompilar.
 
 ## API
@@ -162,8 +168,37 @@ Decidido em 2026-10-28.
 - A API e o banco de dados rodarão **na nuvem**, para atender todos os dispositivos da família.
 - O desktop **exige internet**. Motivo: depende de autenticação e dos dados de cada usuário no servidor. Uso offline está fora do escopo.
 - Com a API exposta na internet, **HTTPS é obrigatório**.
-- O banco é **PostgreSQL gerenciado** pelo provedor. Motivo: o SQLite é um arquivo no disco do servidor, e em muitos serviços de nuvem esse disco é apagado a cada novo deploy. O serviço gerenciado evita a perda de dados e já traz backup (RNF-11).
-- **Em aberto:** escolha do provedor de nuvem. Ela fica para depois do MVP rodar localmente (ver "Ambiente de desenvolvimento"), e preços e planos gratuitos devem ser conferidos no momento da escolha.
+- O banco é **PostgreSQL gerenciado** pelo provedor. Motivo: o SQLite é um arquivo no disco do servidor, e em muitos serviços de nuvem esse disco é apagado a cada novo deploy. ~~O serviço gerenciado evita a perda de dados e já traz backup (RNF-11).~~ O plano escolhido não traz backup automático; ele passa a ser manual (ver "Backup do banco"), decidido em 2026-11-06.
+- ~~**Em aberto:** escolha do provedor de nuvem. Ela fica para depois do MVP rodar localmente (ver "Ambiente de desenvolvimento"), e preços e planos gratuitos devem ser conferidos no momento da escolha.~~ **Resolvido** em 2026-11-06 pela seção "Provedores de nuvem" abaixo.
+
+### Provedores de nuvem
+
+Decidido em 2026-11-06, com preços e limites conferidos nesse dia.
+
+- **Banco no Supabase, plano grátis.** Motivo: custo zero, e 500 MB sobram para os lançamentos de uma família.
+  - O projeto pausa depois de uma semana sem uso. Com uso diário isso não acontece; se pausar, numa viagem por exemplo, é reativado pelo painel.
+  - A API conecta pelo *session pooler* (porta 5432, usuário `postgres.<projeto>`). Motivo: a conexão direta do plano grátis é só IPv6, e o pooler aceita IPv4. O modo sessão também aceita as migrações do Flyway, ao contrário do modo transação.
+  - O Supabase cria os projetos novos em PostgreSQL 17, mais novo que o 16 usado nos testes. Conferir se os testes devem passar para o 17.
+- **API no Render, plano grátis.** Motivo: o uso previsto é de uma a duas vezes por dia, então a API não precisa ficar sempre ligada.
+  - O serviço dorme depois de 15 minutos sem pedidos e acorda no pedido seguinte. As horas dormindo não contam no limite de 750 horas por mês.
+  - **Risco aceito:** o primeiro acesso do dia espera a API acordar, estimado entre 1 e 2 minutos com 0,1 CPU, ainda sem medição. O desktop precisa esperar esse tempo e avisar o usuário: hoje ele desiste em 30 segundos.
+  - A contagem de tentativas de login, que fica na memória, zera quando a API dorme. Aceito para o uso familiar.
+- **API e banco na mesma região, no leste dos EUA** (Render em Virginia, Supabase em `us-east-1`). Motivo: o Render não tem região no Brasil, e cada consulta entre os EUA e São Paulo somaria a distância. Para quem usa do Brasil, a demora extra fica bem abaixo dos 2 segundos do RNF-13.
+- **Descartados:**
+  - plano grátis da AWS, que fecha a conta depois de 6 meses;
+  - Render pago (US$ 7 da API mais US$ 6 do banco por mês), por custo;
+  - Fly.io e o banco gerenciado das grandes nuvens, por custo;
+  - servidor alugado, porque o banco deixaria de ser gerenciado.
+- **Alternativas, se a espera do primeiro acesso incomodar:** Google Cloud Run, que acorda mais rápido mas exige cartão e configuração mais trabalhosa, ou o Render pago, com a API sempre ligada.
+
+### Backup do banco
+
+Decidido em 2026-11-06.
+
+- **Backup manual uma vez por semana com `pg_dump`**, feito no desktop de casa. Motivo: o plano grátis do Supabase não tem backup automático (RNF-11).
+- O backup fica **no desktop de casa, separado do notebook de desenvolvimento**, porque o notebook está ficando sem espaço. Assim continua valendo a regra de que dados reais não ficam na máquina de desenvolvimento (ver "Ambiente de desenvolvimento").
+- **Sem criptografia**, por decisão do usuário. O arquivo tem dados financeiros reais, então segue a regra de segredos: nunca entra no Git.
+- O `pg_dump` precisa ser da versão 17 ou mais nova, a mesma do banco no Supabase.
 
 ## Grupo familiar (futuro)
 
@@ -184,7 +219,9 @@ Decidido em 2026-10-28.
 
 Decidido em 2026-10-28, a partir de `docs/REQUISITOS.md` (lá está de qual requisito vem cada campo).
 
-**`usuario`**: `id`, `nome`, `email` (único; é o login), `senha_hash`, `compartilha_resumo`, `criado_em`, `atualizado_em`.
+**`usuario`**: `id`, `nome`, `email` (único; é o login), `senha_hash`, `compartilha_resumo`, `versao_token` (desde a migração `V2`, 2026-11-06), `criado_em`, `atualizado_em`.
+
+**`token_revogado`** (desde a migração `V2`, 2026-11-06): `id` (o `jti` do token), `usuario_id`, `expira_em`. Guarda os tokens encerrados pelo logout até a hora em que expirariam.
 
 **`categoria`**: `id`, `nome`, `tipo` (`RECEITA`/`DESPESA`), `usuario_id` (nulo = categoria padrão do sistema), `ativa`.
 
@@ -219,6 +256,14 @@ Decidido em 2026-10-28 (RF-14). Criadas por migração do Flyway, com `usuario_i
 - Os nomes são dados exibidos ao usuário, por isso mantêm acento.
 - Cada usuário pode criar categorias próprias além dessas (RF-15), por exemplo "Salário" ou "Freelance" como receita.
 - **"Investimentos" é `DESPESA`** (decidido em 2026-10-28): registra o dinheiro aplicado, que sai do saldo. Os rendimentos e resgates entram como receita na categoria "Receitas". Motivo: é como a família já controla hoje.
+
+## Repositório público e licença
+
+Decidido em 2026-11-06.
+
+- **O repositório no GitHub passa a ser público.** Motivo: os arquivos de instalação ficam disponíveis para a família sem conta no GitHub, e o GitHub Actions e a proteção da `main` ficam gratuitos.
+- O e-mail pessoal do usuário continua como autor dos commits antigos. Motivo: o usuário aceitou, e reescrever o histórico seria arriscado.
+- **Licença MIT**, no arquivo `LICENSE`. Motivo: é a mais simples e comum; permite usar, modificar e redistribuir, mantendo o aviso de autoria, e isenta o autor de garantias. Também deixa o Conveyor gratuito, caso ele seja escolhido para o instalador.
 
 ## Convenções do projeto
 
@@ -276,7 +321,7 @@ Formato: `tipo/descricao-curta-em-kebab-case`
 
 ## Próximos passos
 
-1. Escolher o provedor de nuvem e publicar a API e o banco.
+1. Publicar a API no Render e o banco no Supabase, com o desktop preparado para esperar a API acordar.
 2. Desktop: gerar um instalador para o Windows.
 3. Tela de administração para incluir e-mails na lista de cadastro.
 4. Depois do MVP: grupo familiar, com a regra de compartilhamento.

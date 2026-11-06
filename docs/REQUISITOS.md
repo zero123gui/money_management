@@ -85,7 +85,7 @@
 | RNF-08 | Multi-dispositivo | Os dados ficam no servidor; o desktop exige internet e não guarda dados financeiros localmente. Uso offline está fora do escopo. | Essencial  | Sugestão | Aprovado   |
 | RNF-09 | Persistência      | ~~Trocar SQLite por PostgreSQL sem reescrever código.~~ Sem sentido: o projeto começa direto em PostgreSQL. | -          | Sugestão | Descartado |
 | RNF-10 | Auditoria         | ~~Todo registro guarda~~ Lançamentos e usuários guardam data de criação e de última alteração. Categorias não precisam (2026-10-29). | Importante | Sugestão | Alterado   |
-| RNF-11 | Confiabilidade    | Backup periódico do banco de dados (oferecido pelo PostgreSQL gerenciado na nuvem).                         | Importante | Sugestão | Aprovado   |
+| RNF-11 | Confiabilidade    | Backup periódico do banco de dados ~~(oferecido pelo PostgreSQL gerenciado na nuvem)~~: manual, uma vez por semana, pois o plano grátis do Supabase não tem backup (2026-11-06). | Importante | Sugestão | Alterado   |
 | RNF-12 | Portabilidade     | O desktop roda no **Windows** no MVP; **macOS** no futuro.                                                  | Essencial  | Sugestão | Alterado   |
 | RNF-13 | Desempenho        | Listagem e resumo de um ano de lançamentos respondem em menos de 2 segundos.                                | Desejável  | Sugestão | Aprovado   |
 | RNF-14 | Testabilidade     | Testes automatizados cobrem as regras de autorização e o cálculo de saldo e resumos.                        | Essencial  | Sugestão | Aprovado   |

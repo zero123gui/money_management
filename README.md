@@ -32,7 +32,8 @@ financeiro/
 ├── backend/   API REST (Spring Boot)
 ├── desktop/   cliente JavaFX
 ├── docs/      decisões, requisitos e progresso
-└── AGENTS.md  guia para agentes de IA
+├── AGENTS.md  guia para agentes de IA
+└── LICENSE    licença MIT
 ```
 
 ## Documentação
@@ -54,3 +55,7 @@ Para rodar a API localmente, veja [`backend/README.md`](backend/README.md). Para
 - Commits no padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/), em português: `tipo(escopo): descrição`.
 - Branches: `feature/…`, `fix/…`, `docs/…`, `refactor/…`, `chore/…`.
 - Nada direto na `main`; mudanças entram por Pull Request.
+
+## Licença
+
+[MIT](LICENSE). O código pode ser usado, modificado e redistribuído, desde que o aviso de licença seja mantido.

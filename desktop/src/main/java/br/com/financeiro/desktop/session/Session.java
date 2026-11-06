@@ -18,7 +18,7 @@ public class Session {
         this.token = token;
     }
 
-    /** Descarta o token. É o logout do RF-03, pois a API não guarda sessão. */
+    /** Descarta o token na memória. Encerrá-lo na API é papel de quem chama. */
     public void clear() {
         token = null;
     }

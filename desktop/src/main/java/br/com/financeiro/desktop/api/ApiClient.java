@@ -38,8 +38,10 @@ import tools.jackson.databind.json.JsonMapper;
 public class ApiClient {
 
     private static final String API_PREFIX = "/api/v1";
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(30);
+    // Folgado de propósito: no plano grátis do Render, a API dorme sem uso e o
+    // primeiro pedido do dia espera ela acordar (docs/DECISOES.md, "Provedores de nuvem").
+    private static final Duration REQUEST_TIMEOUT = Duration.ofMinutes(3);
     private static final String UNAVAILABLE_MESSAGE =
             "Não foi possível conectar à API. Confira a internet e tente novamente.";
     private static final String UNEXPECTED_MESSAGE = "A API respondeu de forma inesperada. Tente novamente.";
@@ -83,6 +85,21 @@ public class ApiClient {
      */
     public TokenResponse login(LoginRequest request) {
         return send(publicPost("/auth/login", request), TokenResponse.class);
+    }
+
+    /**
+     * Encerra o token na API (RF-03). Recebe o token em vez de lê-lo da sessão,
+     * porque a tela já descartou a sessão quando esta chamada termina.
+     *
+     * @param token token a encerrar
+     * @throws ApiException se a API recusar ou não responder; o token, então,
+     *                      continua valendo até expirar
+     */
+    public void logout(String token) {
+        HttpRequest.Builder request = request("/auth/sair")
+                .header("Authorization", "Bearer " + token)
+                .POST(HttpRequest.BodyPublishers.noBody());
+        send(request, Void.class);
     }
 
     /**
@@ -284,7 +301,8 @@ public class ApiClient {
 
     /**
      * Altera a senha do usuário (RF-04). Aqui, um {@code 400} com o campo
-     * {@code senhaAtual} indica senha errada; a sessão continua valendo.
+     * {@code senhaAtual} indica senha errada; a sessão continua valendo. Com
+     * sucesso, a API encerra todos os tokens do usuário, inclusive o atual.
      *
      * @param request senha atual e nova senha
      * @throws SessionExpiredException se não houver token ou a API recusá-lo

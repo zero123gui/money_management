@@ -6,7 +6,7 @@ API REST do Controle Financeiro Familiar.
 - **Banco**: PostgreSQL (gerenciado na nuvem em produção).
 - **Responsabilidade**: autenticação, regras de negócio e isolamento dos dados por usuário. Toda consulta filtra pelo usuário autenticado.
 
-**Status:** os 17 endpoints do MVP estão prontos, conforme [`../docs/API.md`](../docs/API.md).
+**Status:** os 18 endpoints do MVP estão prontos, conforme [`../docs/API.md`](../docs/API.md).
 
 ## Como executar localmente
 

@@ -40,7 +40,6 @@
             <PasswordField fx:id="newPasswordField" promptText="Mínimo de 8 caracteres"/>
             <Label text="Confirmar nova senha" labelFor="$confirmationField" styleClass="field-label"/>
             <PasswordField fx:id="confirmationField"/>
-            <Label fx:id="passwordNoticeLabel" visible="false" wrapText="true" minHeight="-Infinity" styleClass="form-notice"/>
             <Label fx:id="passwordErrorLabel" visible="false" wrapText="true" minHeight="-Infinity" styleClass="form-error"/>
             <Button fx:id="changePasswordButton" text="Alterar senha" defaultButton="true"
                     onAction="#onChangePassword" styleClass="primary-button">

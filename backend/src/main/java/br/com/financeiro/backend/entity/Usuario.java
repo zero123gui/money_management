@@ -33,6 +33,9 @@ public class Usuario {
     @Column(name = "compartilha_resumo", nullable = false)
     private boolean sharesSummary;
 
+    @Column(name = "versao_token", nullable = false)
+    private int tokenVersion;
+
     @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
     private Instant createdAt;
@@ -59,12 +62,18 @@ public class Usuario {
     }
 
     /**
-     * Troca a senha do usuário.
+     * Troca a senha do usuário e encerra todos os tokens já emitidos para ele.
      *
      * @param passwordHash hash BCrypt da nova senha
      */
     public void changePassword(String passwordHash) {
         this.passwordHash = passwordHash;
+        tokenVersion++;
+    }
+
+    /** @return versão de token atual; tokens de outra versão não valem mais */
+    public int getTokenVersion() {
+        return tokenVersion;
     }
 
     /** @return identificador gerado pelo banco */

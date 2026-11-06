@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -54,9 +55,19 @@ public class AuthorizationService {
      * @throws AuthenticationCredentialsNotFoundException se não houver token validado
      */
     public Long currentUserId() {
+        return Long.valueOf(currentToken().getSubject());
+    }
+
+    /**
+     * Devolve o token validado da requisição atual.
+     *
+     * @return o token, com assinatura, validade e revogação já conferidas
+     * @throws AuthenticationCredentialsNotFoundException se não houver token validado
+     */
+    public Jwt currentToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof JwtAuthenticationToken token) {
-            return Long.valueOf(token.getName());
+            return token.getToken();
         }
         throw new AuthenticationCredentialsNotFoundException("Requisição sem token validado");
     }

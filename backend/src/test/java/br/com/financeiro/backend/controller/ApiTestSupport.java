@@ -30,7 +30,7 @@ abstract class ApiTestSupport {
     private static final String JWT_SECRET = Base64.getEncoder().encodeToString(randomKey());
 
     @ServiceConnection
-    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
+    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine");
 
     // Iniciado aqui, sem @Container: o Spring reaproveita o mesmo contexto entre
     // as classes de teste, e o contêiner precisa continuar de pé entre elas.
@@ -85,6 +85,18 @@ abstract class ApiTestSupport {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("senha", senha))
+                .exchange();
+    }
+
+    RestTestClient.ResponseSpec logout(String token) {
+        return client.post().uri("/api/v1/auth/sair")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange();
+    }
+
+    RestTestClient.ResponseSpec getMe(String token) {
+        return client.get().uri("/api/v1/usuarios/me")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .exchange();
     }
 

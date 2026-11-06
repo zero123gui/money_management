@@ -329,6 +329,41 @@ class AuthApiTest extends ApiTestSupport {
     }
 
     @Test
+    void logoutEndsOnlyTheTokenUsed() {
+        String email = register();
+        String notebook = login(email);
+        String desktop = login(email);
+
+        logout(notebook).expectStatus().isNoContent().expectBody().isEmpty();
+
+        assertUnauthorized(notebook);
+        getMe(desktop).expectStatus().isOk();
+        postLogin(email, SENHA).expectStatus().isOk();
+    }
+
+    @Test
+    void logoutRequiresToken() {
+        client.post().uri("/api/v1/auth/sair").exchange().expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void loggedOutTokenCannotLogOutAgain() {
+        String token = login(register());
+        logout(token).expectStatus().isNoContent();
+
+        logout(token).expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void validlySignedTokenWithoutIdOrVersionIsRejected() {
+        // Assinado com a chave certa e dentro da validade, mas sem as claims que o encerram.
+        String email = register();
+        Long id = usuarios.findByEmail(email).orElseThrow().getId();
+
+        assertUnauthorized(sign(jwtEncoder, id, Instant.now(), Instant.now().plus(Duration.ofHours(1))));
+    }
+
+    @Test
     void unknownRouteDoesNotRevealItselfWithoutToken() {
         client.get().uri("/api/v1/nao-existe").exchange().expectStatus().isUnauthorized();
     }

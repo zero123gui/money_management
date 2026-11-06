@@ -91,16 +91,19 @@ public class SecurityConfig {
      * Cria o validador de tokens.
      *
      * @param properties configuração do JWT
+     * @param revocation recusa os tokens encerrados pela troca de senha ou pelo logout
      * @return o decodificador de tokens HS256
      */
     @Bean
-    public JwtDecoder jwtDecoder(JwtProperties properties) {
+    public JwtDecoder jwtDecoder(JwtProperties properties, TokenRevocationValidator revocation) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(properties.signingKey())
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
         // Sem a tolerância padrão de 60 segundos: quem emite e quem valida é o
         // mesmo servidor, e o token deve valer exatamente o tempo configurado.
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(Duration.ZERO)));
+        // A validade vem primeiro, para um token vencido nem chegar ao banco.
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                new JwtTimestampValidator(Duration.ZERO), revocation));
         return decoder;
     }
 }

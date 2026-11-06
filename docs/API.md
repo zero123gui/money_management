@@ -36,7 +36,8 @@
 - Rotas públicas: apenas `POST /auth/cadastro` e `POST /auth/login`.
 - Todas as outras exigem o cabeçalho `Authorization: Bearer <token>`.
 - O token expira em **1 hora** (RNF-02). Quando ele expira, a API responde `401` e o desktop leva o usuário de volta para a tela de login.
-- **Logout (RF-03)** não tem endpoint: o JWT não fica guardado no servidor, então o desktop apenas descarta o token.
+- **Logout (RF-03)**: `POST /auth/sair` encerra o token usado no pedido, que passa a receber `401`. Tokens do mesmo usuário em outros aparelhos continuam valendo.
+- **Trocar a senha encerra todos os tokens do usuário**, inclusive o usado na troca.
 - O usuário nunca é informado no corpo ou na URL: a API sempre usa o usuário do token (RNF-04). Por isso as rotas do próprio usuário usam `/usuarios/me`.
 
 ### 1.4 Privacidade nas respostas
@@ -111,6 +112,7 @@ Todas as rotas abaixo têm o prefixo `/api/v1`. 🔓 = pública; 🔒 = exige to
 |----------|------------------------------------|---------------|--------|
 | `POST`   | `/auth/cadastro`                   | RF-01         | 🔓     |
 | `POST`   | `/auth/login`                      | RF-02         | 🔓     |
+| `POST`   | `/auth/sair`                       | RF-03         | 🔒     |
 | `GET`    | `/usuarios/me`                     | —             | 🔒     |
 | `PUT`    | `/usuarios/me/senha`               | RF-04         | 🔒     |
 | `DELETE` | `/usuarios/me`                     | RF-05         | 🔒     |
@@ -158,6 +160,13 @@ Cria um usuário. Requisição:
 - `429` com o cabeçalho `Retry-After` depois de 5 falhas seguidas no mesmo e-mail, por 15 minutos a partir da última falha. Vale também para a senha certa e para e-mails que não existem. Um login certo antes do limite zera a contagem. Tokens já emitidos continuam válidos.
 - `413` se o corpo tiver mais de 4 KB, com ou sem o cabeçalho `Content-Length`.
 
+#### `POST /auth/sair` 🔒
+
+Sai do aplicativo, encerrando o token enviado no cabeçalho. Sem corpo.
+
+- `204` em caso de sucesso. Daí em diante, esse token recebe `401` em qualquer rota.
+- `401` sem token, ou com um token já encerrado ou expirado.
+
 ### 2.2 Usuário
 
 #### `GET /usuarios/me` 🔒
@@ -176,7 +185,7 @@ Cria um usuário. Requisição:
 
 - `204` em caso de sucesso.
 - `400` se a `senhaAtual` estiver errada ou a `novaSenha` for inválida (mesmas regras da senha no cadastro). A lista `erros` indica o campo.
-- Tokens já emitidos continuam válidos até expirar.
+- Com sucesso, todos os tokens do usuário deixam de valer, inclusive o usado nesta troca. O cliente leva o usuário a entrar de novo. Uma troca recusada não altera nenhum token.
 
 #### `DELETE /usuarios/me` 🔒 (Desejável)
 
